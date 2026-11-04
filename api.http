@@ -31,3 +31,40 @@ Content-Type: application/json
     "job_type": "Speaker Repair",
     "price": 450
 }
+
+
+### Register
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "name": "CellHub Staff",
+  "email": "staff@cellhub.com",
+  "password": "staff12345"
+}
+
+### Login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "staff@cellhub.com",
+  "password": "staff12345"
+}
+
+### Check logged-in user
+GET http://localhost:3000/auth/me
+Authorization: Bearer PASTE_TOKEN_HERE
+
+### Create job without token
+POST http://localhost:3000/jobs
+Content-Type: application/json
+
+{
+  "customer_id": 1,
+  "device_model": "Samsung A15",
+  "issue": "Broken screen",
+  "job_type": "Screen Replacement",
+  "price": 2500
+}
+
