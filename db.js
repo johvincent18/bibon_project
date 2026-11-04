@@ -37,6 +37,9 @@ if (count === 0) {
   addCustomer.run('Ana Reyes', '0919-555-6666', 'ana.reyes@gmail.com', 'Sampaloc, Sariaya');
   addCustomer.run('Carlo Mendoza', '0920-777-8888', 'carlo.mendoza@gmail.com', 'Isabang, Lucena City');
   addCustomer.run('Liza Garcia', '0921-999-0000', 'liza.garcia@gmail.com', 'Poblacion, Candelaria');
+  addCustomer.run('Paolo Ramos', '0922-123-4567', 'paolo.ramos@gmail.com', 'Gulang-gulang, Lucena City');
+  addCustomer.run('Jenny Aquino', '0923-234-5678', 'jenny.aquino@gmail.com', 'Poblacion, Pagbilao');
+  addCustomer.run('Mark Villanueva', '0924-345-6789', 'mark.villanueva@gmail.com', 'Bignay, Sariaya');
 
   const addJob = db.prepare(
     'INSERT INTO service_jobs (customer_id, device_model, issue, job_type, price, status, date_received) VALUES (?, ?, ?, ?, ?, ?, ?)'
@@ -47,6 +50,9 @@ if (count === 0) {
   addJob.run(3, 'Oppo A57', 'Forgot pattern lock', 'Unlocking', 500, 'Completed', '2026-11-01');
   addJob.run(4, 'Realme C55', 'Not charging', 'Charging Port Repair', 900, 'Pending', '2026-11-04');
   addJob.run(4, 'Realme C55', 'Phone case', 'Accessory Purchase', 200, 'Released', '2026-11-04');
+  addJob.run(6, 'Vivo Y20', 'No display after drop', 'Screen Replacement', 3200, 'Pending', '2026-11-04');
+  addJob.run(6, 'Vivo Y20', 'Tempered glass', 'Accessory Purchase', 120, 'Completed', '2026-11-04');
+  addJob.run(7, 'Infinix Hot 30', 'Slow and hangs', 'Software Update', 350, 'In Progress', '2026-11-04');
 }
 
 module.exports = db;

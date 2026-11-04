@@ -1,0 +1,33 @@
+### GET jobs details
+GET http://localhost:3000/jobs/details
+
+### POST new customer
+POST http://localhost:3000/customers
+Content-Type: application/json
+
+{
+    "name": "Pedro Lim",
+    "phone": "0925-111-2222"
+}
+
+### POST invalid customer
+POST http://localhost:3000/customers
+Content-Type: application/json
+
+{
+    "name": "",
+    "phone": "0925"
+}
+
+
+### POST new job
+POST http://localhost:3000/jobs
+Content-Type: application/json
+
+{
+    "customer_id": 2,
+    "device_model": "Xiaomi Redmi 12",
+    "issue": "Broken speaker",
+    "job_type": "Speaker Repair",
+    "price": 450
+}
