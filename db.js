@@ -24,6 +24,14 @@ CREATE TABLE IF NOT EXISTS service_jobs (
   date_received TEXT NOT NULL,
   FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  passwordHash TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'staff'
+);
 `);
 
 const count = db.prepare('SELECT COUNT(*) AS total FROM customers').get().total;

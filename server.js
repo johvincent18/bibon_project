@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 app.use(express.json());
@@ -11,8 +14,87 @@ const PORT = process.env.PORT || 3000;
 const ALLOWED_STATUS = ['Pending', 'In Progress', 'Completed', 'Released'];
 const SORTABLE = ['id', 'customer_id', 'device_model', 'job_type', 'price', 'status', 'date_received'];
 
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('Missing JWT_SECRET. Add it to your .env file.');
+  process.exit(1);
+}
+
+// ---------- AUTH HELPERS ----------
+function requireAuth(req, res, next) {
+  const header = req.headers.authorization || '';
+  const [type, token] = header.split(' ');
+  if (type !== 'Bearer' || !token) {
+    return res.status(401).json({ error: 'Please log in first' });
+  }
+  try {
+    req.user = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Your login is invalid or expired' });
+  }
+}
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  message: { error: 'Too many login attempts. Try again in 15 minutes.' },
+});
+
 app.get('/', (req, res) => {
   res.json({ status: 'ok', message: 'CellHub API is running' });
+});
+
+// ---------- AUTH ROUTES ----------
+app.post('/auth/register', (req, res) => {
+  const { name, email, password } = req.body || {};
+  if (typeof name !== 'string' || name.trim() === '') {
+    return res.status(400).json({ error: 'name is required' });
+  }
+  if (typeof email !== 'string' || !/^\S+@\S+\.\S+$/.test(email)) {
+    return res.status(400).json({ error: 'a valid email is required' });
+  }
+  if (typeof password !== 'string' || password.length < 8) {
+    return res.status(400).json({ error: 'password must be at least 8 characters' });
+  }
+  const cleanEmail = email.trim().toLowerCase();
+  const taken = db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail);
+  if (taken) {
+    return res.status(409).json({ error: 'That email is already registered' });
+  }
+  const passwordHash = bcrypt.hashSync(password, 10);
+  const result = db
+    .prepare('INSERT INTO users (name, email, passwordHash) VALUES (?, ?, ?)')
+    .run(name.trim(), cleanEmail, passwordHash);
+  res.status(201).json({
+    id: result.lastInsertRowid,
+    name: name.trim(),
+    email: cleanEmail,
+  });
+});
+
+app.post('/auth/login', loginLimiter, (req, res) => {
+  const { email, password } = req.body || {};
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    return res.status(400).json({ error: 'email and password are required' });
+  }
+  const user = db
+    .prepare('SELECT * FROM users WHERE email = ?')
+    .get(email.trim().toLowerCase());
+  const ok = user && bcrypt.compareSync(password, user.passwordHash);
+  if (!ok) {
+    return res.status(401).json({ error: 'Wrong email or password' });
+  }
+  const token = jwt.sign(
+    { id: user.id, email: user.email, role: user.role },
+    JWT_SECRET,
+    { expiresIn: '1h' }
+  );
+  res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+});
+
+app.get('/auth/me', requireAuth, (req, res) => {
+  res.json({ id: req.user.id, email: req.user.email, role: req.user.role });
 });
 
 // ---------- CUSTOMERS ----------
@@ -20,7 +102,7 @@ app.get('/customers', (req, res) => {
   res.json(db.prepare('SELECT * FROM customers').all());
 });
 
-// Bonus: job count and total price per customer (must stay ABOVE /customers/:id)
+// Must stay ABOVE /customers/:id
 app.get('/customers/summary', (req, res) => {
   const rows = db
     .prepare(
@@ -55,7 +137,7 @@ app.get('/customers/:id/jobs', (req, res) => {
   res.json(rows);
 });
 
-app.post('/customers', (req, res) => {
+app.post('/customers', requireAuth, (req, res) => {
   const { name, phone, email = null, address = null } = req.body || {};
   if ([name, phone].some((f) => typeof f !== 'string' || f.trim() === '')) {
     return res.status(400).json({ error: 'name and phone are required' });
@@ -72,7 +154,7 @@ app.post('/customers', (req, res) => {
   res.status(201).json(created);
 });
 
-app.delete('/customers/:id', (req, res) => {
+app.delete('/customers/:id', requireAuth, (req, res) => {
   const customer = db.prepare('SELECT * FROM customers WHERE id = ?').get(req.params.id);
   if (!customer) {
     return res.status(404).json({ error: 'Customer not found' });
@@ -158,7 +240,7 @@ app.get('/jobs/:id', (req, res) => {
   res.json(row);
 });
 
-app.post('/jobs', (req, res) => {
+app.post('/jobs', requireAuth, (req, res) => {
   const {
     customer_id,
     device_model,
@@ -203,7 +285,7 @@ app.post('/jobs', (req, res) => {
   res.status(201).json(created);
 });
 
-app.put('/jobs/:id', (req, res) => {
+app.put('/jobs/:id', requireAuth, (req, res) => {
   const { status } = req.body || {};
   if (!ALLOWED_STATUS.includes(status)) {
     return res.status(400).json({
@@ -219,7 +301,7 @@ app.put('/jobs/:id', (req, res) => {
   res.json(db.prepare('SELECT * FROM service_jobs WHERE id = ?').get(req.params.id));
 });
 
-app.delete('/jobs/:id', (req, res) => {
+app.delete('/jobs/:id', requireAuth, (req, res) => {
   const result = db.prepare('DELETE FROM service_jobs WHERE id = ?').run(req.params.id);
   if (result.changes === 0) {
     return res.status(404).json({ error: 'Service job not found' });

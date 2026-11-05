@@ -68,3 +68,95 @@ Content-Type: application/json
   "price": 2500
 }
 
+
+
+### 1. Register (expect 201, no password shown)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{"name":"Ana Cruz","email":"ana@test.com","password":"secret123"}
+
+### 2. Register again (expect 409)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{"name":"Ana Cruz","email":"ana@test.com","password":"secret123"}
+
+### 3. Login (expect 200 + token)
+# @name login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{"email":"ana@test.com","password":"secret123"}
+
+### 4. Wrong password (expect 401)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{"email":"ana@test.com","password":"wrongpass"}
+
+### 5. Who am I, no token (expect 401 Please log in first)
+GET http://localhost:3000/auth/me
+
+### 6. Who am I, with token (expect 200)
+GET http://localhost:3000/auth/me
+Authorization: Bearer {{login.response.body.token}}
+
+### 7. Register Ben (expect 201)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{"name":"Ben Lim","email":"ben@test.com","password":"secret123"}
+
+### 8. Short password (expect 400)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{"name":"X","email":"x@test.com","password":"123"}
+
+### 9. Bad email (expect 400)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{"name":"X","email":"abc","password":"secret123"}
+
+### 10. NO token, add customer (expect 401 Please log in first)
+POST http://localhost:3000/customers
+Content-Type: application/json
+
+{"name":"Pedro Lim","phone":"0925-111-2222"}
+
+### 11. FAKE token, add customer (expect 401 invalid or expired)
+POST http://localhost:3000/customers
+Content-Type: application/json
+Authorization: Bearer abc
+
+{"name":"Pedro Lim","phone":"0925-111-2222"}
+
+### 12. GOOD token, add customer (expect 201)
+POST http://localhost:3000/customers
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.token}}
+
+{"name":"Pedro Lim","phone":"0925-111-2222"}
+
+### 13. NO token, add job (expect 401)
+POST http://localhost:3000/jobs
+Content-Type: application/json
+
+{"customer_id":2,"device_model":"Xiaomi Redmi 12","issue":"Broken speaker","job_type":"Speaker Repair","price":450}
+
+### 14. NO token, update job (expect 401)
+PUT http://localhost:3000/jobs/1
+Content-Type: application/json
+
+{"status":"Completed"}
+
+### 15. NO token, delete job (expect 401)
+DELETE http://localhost:3000/jobs/1
+
+### 16. NO token, delete customer (expect 401)
+DELETE http://localhost:3000/customers/1
+
+### 17. PUBLIC read, no token (expect 200 + list)
+GET http://localhost:3000/customers
