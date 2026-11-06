@@ -1,7 +1,9 @@
 const Database = require('better-sqlite3');
+const bcrypt = require('bcryptjs');
 const path = require('path');
 
-const db = new Database(path.join(__dirname, 'cellhub.db'));
+const dbFile = process.env.DB_FILE || path.join(__dirname, 'cellhub.db');
+const db = new Database(dbFile);
 db.pragma('foreign_keys = ON');
 
 db.exec(`
@@ -132,6 +134,20 @@ if (db.prepare('SELECT COUNT(*) AS total FROM payments').get().total === 0) {
   sell(1, 3, 'Cash', '2026-11-03');
   sell(3, 1, 'GCash', '2026-11-04');
   sell(4, 2, 'Cash', '2026-11-05');
+}
+
+// ---------- 4. DEMO ADMIN (survives redeploys on Render) ----------
+const demoEmail = process.env.DEMO_EMAIL;
+const demoPassword = process.env.DEMO_PASSWORD;
+if (demoEmail && demoPassword) {
+  const email = demoEmail.trim().toLowerCase();
+  const found = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+  if (!found) {
+    const hash = bcrypt.hashSync(demoPassword, 10);
+    db.prepare(
+      "INSERT INTO users (name, email, passwordHash, role) VALUES (?, ?, ?, 'admin')"
+    ).run('Demo Admin', email, hash);
+  }
 }
 
 module.exports = db;
