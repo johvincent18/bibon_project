@@ -18,4 +18,3 @@
 
 ## Logout question
 
-(Write your 2 sentences here.)

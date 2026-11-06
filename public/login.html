@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in - CellHub</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+<div class="blob b1" aria-hidden="true"></div>
+<div class="blob b2" aria-hidden="true"></div>
+<div class="blob b3" aria-hidden="true"></div>
+<p id="message" role="status" aria-live="polite"></p>
+
+<main class="auth-card">
+  <section class="auth-brand">
+    <p class="logo"><span aria-hidden="true">📱</span> Cell<span>Hub</span></p>
+    <p class="tagline">Run your cellphone shop with confidence.</p>
+    <ul class="perks">
+      <li>Track every repair from drop-off to release</li>
+      <li>Know your customers and their history</li>
+      <li>See your numbers at a glance</li>
+    </ul>
+  </section>
+
+  <section class="auth-form">
+    <h1>Welcome back</h1>
+    <p class="sub">Sign in to open your dashboard.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginEmail">Email</label>
+        <input id="loginEmail" type="email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <div class="pw">
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+          <button type="button" class="toggle-pw" data-target="loginPassword" aria-pressed="false">Show</button>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary">Sign in</button>
+    </form>
+    <p class="switch">New to CellHub? <a href="register.html" data-go>Create an account</a></p>
+  </section>
+</main>
+
+<script src="common.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>

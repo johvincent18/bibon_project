@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create account - CellHub</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+<div class="blob b1" aria-hidden="true"></div>
+<div class="blob b2" aria-hidden="true"></div>
+<div class="blob b3" aria-hidden="true"></div>
+<p id="message" role="status" aria-live="polite"></p>
+
+<main class="auth-card">
+  <section class="auth-brand">
+    <p class="logo"><span aria-hidden="true">📱</span> Cell<span>Hub</span></p>
+    <p class="tagline">Join your team on CellHub.</p>
+    <ul class="perks">
+      <li>Create your staff account in seconds</li>
+      <li>Add and update service jobs anywhere</li>
+      <li>Keep every customer record in one place</li>
+    </ul>
+  </section>
+
+  <section class="auth-form">
+    <h1>Create your account</h1>
+    <p class="sub">It only takes a moment.</p>
+    <form id="registerForm">
+      <div class="field">
+        <label for="regName">Your name</label>
+        <input id="regName" type="text" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label for="regEmail">Email</label>
+        <input id="regEmail" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="regPassword">Password (at least 8 characters)</label>
+        <div class="pw">
+          <input id="regPassword" type="password" minlength="8" autocomplete="new-password" required>
+          <button type="button" class="toggle-pw" data-target="regPassword" aria-pressed="false">Show</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="regConfirm">Confirm password</label>
+        <input id="regConfirm" type="password" minlength="8" autocomplete="new-password" required>
+      </div>
+      <button type="submit" class="btn-primary">Create account</button>
+    </form>
+    <p class="switch">Already have an account? <a href="login.html" data-go>Sign in</a></p>
+  </section>
+</main>
+
+<script src="common.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>

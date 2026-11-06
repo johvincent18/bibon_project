@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard - CellHub</title>
+<script>
+  try { if (!localStorage.getItem('cellhubToken')) { location.replace('login.html'); } } catch (e) {}
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<p id="message" role="status" aria-live="polite"></p>
+
+<div class="app">
+  <aside class="sidebar">
+    <p class="logo"><span aria-hidden="true">📱</span> Cell<span>Hub</span></p>
+    <nav aria-label="Main menu">
+      <ul class="nav">
+        <li><a href="#dashboard" data-view="dashboard"><span aria-hidden="true">🏠</span> Dashboard</a></li>
+        <li><a href="#customers" data-view="customers"><span aria-hidden="true">👥</span> Customers</a></li>
+        <li><a href="#payments" data-view="payments"><span aria-hidden="true">💳</span> Payments</a></li>
+        <li><a href="#inventory" data-view="inventory"><span aria-hidden="true">📦</span> Inventory</a></li>
+        <li><a href="#reports" data-view="reports"><span aria-hidden="true">📊</span> Reports</a></li>
+      </ul>
+    </nav>
+    <button id="logoutBtn" type="button" class="side-btn"><span aria-hidden="true">🚪</span> Log out</button>
+  </aside>
+
+  <div class="content">
+    <header class="topbar">
+      <p class="crumb" id="crumb">Dashboard</p>
+      <div class="user-chip">
+        <span id="avatar" class="avatar" aria-hidden="true">?</span>
+        <p id="who">Loading...</p>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+
+      <!-- ================= DASHBOARD ================= -->
+      <div class="view" id="view-dashboard">
+        <h1 class="page-title" tabindex="-1">Repair Service Management</h1>
+        <p class="page-sub">Manage customer repair requests and job status.</p>
+
+        <div class="stats">
+          <div class="stat" style="--d:.05s"><span class="stat-icon" aria-hidden="true">📋</span><div><p class="stat-label">Total jobs</p><p class="stat-num" id="statTotal">0</p></div></div>
+          <div class="stat" style="--d:.12s"><span class="stat-icon amber" aria-hidden="true">⏳</span><div><p class="stat-label">In the queue</p><p class="stat-num" id="statQueue">0</p></div></div>
+          <div class="stat" style="--d:.19s"><span class="stat-icon green" aria-hidden="true">💰</span><div><p class="stat-label">Collected</p><p class="stat-num" id="statCollected">&#8369;0</p></div></div>
+          <div class="stat" style="--d:.26s"><span class="stat-icon violet" aria-hidden="true">📦</span><div><p class="stat-label">Low-stock items</p><p class="stat-num" id="statLow">0</p></div></div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <section id="addSection" class="card" aria-labelledby="addTitle" style="--d:.15s">
+              <div class="card-head"><h2 id="addTitle"><span aria-hidden="true">➕</span> Add new service job</h2></div>
+              <div class="card-body">
+                <form id="addForm" class="form-grid">
+                  <div class="field">
+                    <label for="customerSelect">Customer</label>
+                    <select id="customerSelect" required><option value="">Select customer</option></select>
+                    <p class="hint">Not in the list? <a class="link" href="#customers">Add a new customer</a></p>
+                  </div>
+                  <div class="field">
+                    <label for="deviceModel">Device model</label>
+                    <input id="deviceModel" type="text" placeholder="e.g. iPhone 15" required>
+                  </div>
+                  <div class="field">
+                    <label for="price">Price (&#8369;)</label>
+                    <input id="price" type="number" min="0" step="0.01" placeholder="e.g. 1500" required>
+                  </div>
+                  <div class="field">
+                    <label for="issue">Issue</label>
+                    <input id="issue" type="text" placeholder="e.g. Screen is cracked" required>
+                  </div>
+                  <div class="field">
+                    <label for="jobType">Job type</label>
+                    <select id="jobType" required>
+                      <option value="">Select type</option>
+                      <option>Screen Replacement</option>
+                      <option>Battery Replacement</option>
+                      <option>Charging Port Repair</option>
+                      <option>Speaker Repair</option>
+                      <option>Software Update</option>
+                      <option>Unlocking</option>
+                      <option>Accessory Purchase</option>
+                    </select>
+                  </div>
+                  <div class="field"><button type="submit" class="btn-primary">Add job</button></div>
+                </form>
+              </div>
+            </section>
+
+            <section id="jobsSection" class="card" aria-labelledby="listTitle" style="--d:.25s">
+              <div class="card-head">
+                <h2 id="listTitle"><span aria-hidden="true">🔧</span> Service jobs</h2>
+                <div class="tools">
+                  <div><label for="search" class="sr-only">Search jobs</label><input id="search" type="search" placeholder="Search jobs..."></div>
+                  <div>
+                    <label for="statusFilter" class="sr-only">Status filter</label>
+                    <select id="statusFilter">
+                      <option value="">All statuses</option>
+                      <option>Pending</option>
+                      <option>In Progress</option>
+                      <option>Completed</option>
+                      <option>Released</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="table-wrap">
+                  <table class="jobs wide">
+                    <caption class="sr-only">All service jobs</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Device</th>
+                        <th scope="col">Issue</th>
+                        <th scope="col">Job type</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Payment</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="rows"></tbody>
+                  </table>
+                </div>
+                <div class="pager">
+                  <p id="pageInfo"></p>
+                  <div>
+                    <button id="prevBtn" type="button" class="btn">Previous</button>
+                    <button id="nextBtn" type="button" class="btn">Next</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <aside>
+            <section id="customerSection" class="card" aria-labelledby="custTitle" style="--d:.3s">
+              <div class="card-head"><h2 id="custTitle"><span aria-hidden="true">👤</span> Customer details</h2></div>
+              <div class="card-body">
+                <label for="detailSelect">Choose a customer</label>
+                <select id="detailSelect"><option value="">Select customer</option></select>
+                <p id="detailEmpty" class="muted">Choose a customer, or press View in a table.</p>
+                <div id="detailBox" hidden>
+                  <div class="cust-top">
+                    <span id="detailAvatar" class="avatar big" aria-hidden="true"></span>
+                    <h3 id="detailName" tabindex="-1"></h3>
+                  </div>
+                  <dl class="info">
+                    <dt>Email</dt><dd id="detailEmail"></dd>
+                    <dt>Phone</dt><dd id="detailPhone"></dd>
+                    <dt>Address</dt><dd id="detailAddress"></dd>
+                    <dt>Total jobs</dt><dd id="detailTotalJobs"></dd>
+                    <dt>Total billed</dt><dd id="detailBilled"></dd>
+                    <dt>Total paid</dt><dd id="detailPaid"></dd>
+                    <dt>Balance due</dt><dd id="detailBalance"></dd>
+                  </dl>
+                </div>
+              </div>
+            </section>
+
+            <section class="card" aria-labelledby="custJobsTitle" style="--d:.38s">
+              <div class="card-head"><h2 id="custJobsTitle"><span aria-hidden="true">📋</span> Customer's jobs</h2></div>
+              <div class="card-body">
+                <div class="table-wrap">
+                  <table class="jobs small">
+                    <caption class="sr-only">Jobs of the selected customer</caption>
+                    <thead><tr><th scope="col">Date</th><th scope="col">Device</th><th scope="col">Status</th></tr></thead>
+                    <tbody id="custJobRows"></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </div>
+
+      <!-- ================= CUSTOMERS ================= -->
+      <div class="view" id="view-customers" hidden>
+        <h1 class="page-title" tabindex="-1">Customers</h1>
+        <p class="page-sub">Add new customers and see everyone you serve.</p>
+
+        <section class="card" aria-labelledby="newCustTitle">
+          <div class="card-head"><h2 id="newCustTitle"><span aria-hidden="true">👤</span> Add a new customer</h2></div>
+          <div class="card-body">
+            <form id="addCustomerForm" class="form-grid">
+              <div class="field"><label for="newCustName">Full name</label><input id="newCustName" type="text" autocomplete="off" required></div>
+              <div class="field"><label for="newCustPhone">Phone</label><input id="newCustPhone" type="tel" placeholder="0917-123-4567" autocomplete="off" required></div>
+              <div class="field"><label for="newCustEmail">Email (optional)</label><input id="newCustEmail" type="email" autocomplete="off"></div>
+              <div class="field"><label for="newCustAddress">Address (optional)</label><input id="newCustAddress" type="text" autocomplete="off"></div>
+              <div class="field"><button type="submit" class="btn-primary">Add customer</button></div>
+            </form>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="allCustTitle">
+          <div class="card-head">
+            <h2 id="allCustTitle"><span aria-hidden="true">👥</span> All customers</h2>
+            <div class="tools"><div><label for="custSearch" class="sr-only">Search customers</label><input id="custSearch" type="search" placeholder="Search customers..."></div></div>
+          </div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table class="jobs wide">
+                <caption class="sr-only">All customers</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th><th scope="col">Phone</th><th scope="col">Email</th><th scope="col">Address</th>
+                    <th scope="col">Jobs</th><th scope="col">Billed</th><th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="custRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= PAYMENTS ================= -->
+      <div class="view" id="view-payments" hidden>
+        <h1 class="page-title" tabindex="-1">Payments</h1>
+        <p class="page-sub">Record payments for repairs and sell products from your inventory.</p>
+
+        <div class="grid grid-narrow">
+          <section class="card" aria-labelledby="payTitle">
+            <div class="card-head"><h2 id="payTitle"><span aria-hidden="true">💳</span> Record a payment</h2></div>
+            <div class="card-body">
+              <form id="payForm">
+                <div class="field">
+                  <label for="payType">Payment for</label>
+                  <select id="payType">
+                    <option value="job">A service job</option>
+                    <option value="product">A product sale</option>
+                  </select>
+                </div>
+
+                <div id="payJobBox">
+                  <div class="field">
+                    <label for="payJob">Service job</label>
+                    <select id="payJob" required><option value="">Select a service job</option></select>
+                  </div>
+                  <div class="field">
+                    <label for="payAmount">Amount (&#8369;)</label>
+                    <input id="payAmount" type="number" min="0.01" step="0.01" required>
+                    <p class="hint" id="payHint"></p>
+                  </div>
+                </div>
+
+                <div id="payProductBox" hidden>
+                  <div class="field">
+                    <label for="payProduct">Product</label>
+                    <select id="payProduct"><option value="">Select a product</option></select>
+                  </div>
+                  <div class="field">
+                    <label for="payQty">Quantity</label>
+                    <input id="payQty" type="number" min="1" step="1" value="1">
+                    <p class="hint" id="payTotal"></p>
+                  </div>
+                  <div class="field">
+                    <label for="payCustomer">Customer (optional)</label>
+                    <select id="payCustomer"><option value="">Walk-in customer</option></select>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="payMethod">Payment method</label>
+                  <select id="payMethod">
+                    <option>Cash</option><option>GCash</option><option>Maya</option><option>Card</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="payNote">Note (optional)</label>
+                  <input id="payNote" type="text" autocomplete="off">
+                </div>
+                <button type="submit" class="btn-primary">Record payment</button>
+              </form>
+            </div>
+          </section>
+
+          <section class="card" aria-labelledby="payHistTitle">
+            <div class="card-head"><h2 id="payHistTitle"><span aria-hidden="true">🧾</span> Payment history</h2></div>
+            <div class="card-body">
+              <div class="table-wrap scroll-y">
+                <table class="jobs">
+                  <caption class="sr-only">All payments, newest first</caption>
+                  <thead>
+                    <tr><th scope="col">Date</th><th scope="col">Customer</th><th scope="col">Item</th><th scope="col">Method</th><th scope="col">Amount</th></tr>
+                  </thead>
+                  <tbody id="payRows"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- ================= INVENTORY ================= -->
+      <div class="view" id="view-inventory" hidden>
+        <h1 class="page-title" tabindex="-1">Inventory</h1>
+        <p class="page-sub">Track the accessories and parts you sell. Sales lower the stock automatically.</p>
+
+        <section class="card" aria-labelledby="newProdTitle">
+          <div class="card-head"><h2 id="newProdTitle"><span aria-hidden="true">📦</span> Add a product</h2></div>
+          <div class="card-body">
+            <form id="addProductForm" class="form-grid">
+              <div class="field"><label for="prodName">Product name</label><input id="prodName" type="text" autocomplete="off" required></div>
+              <div class="field">
+                <label for="prodCategory">Category</label>
+                <input id="prodCategory" type="text" list="categories" autocomplete="off" required>
+                <datalist id="categories">
+                  <option value="Accessories"></option><option value="Chargers"></option><option value="Cables"></option>
+                  <option value="Audio"></option><option value="Power"></option><option value="Parts"></option>
+                </datalist>
+              </div>
+              <div class="field"><label for="prodPrice">Price (&#8369;)</label><input id="prodPrice" type="number" min="0" step="0.01" required></div>
+              <div class="field"><label for="prodStock">Starting stock</label><input id="prodStock" type="number" min="0" step="1" value="0" required></div>
+              <div class="field"><label for="prodReorder">Low-stock level</label><input id="prodReorder" type="number" min="0" step="1" value="5" required></div>
+              <div class="field"><button type="submit" class="btn-primary">Add product</button></div>
+            </form>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="allProdTitle">
+          <div class="card-head">
+            <h2 id="allProdTitle"><span aria-hidden="true">🗃️</span> Products</h2>
+            <div class="tools"><div><label for="invSearch" class="sr-only">Search products</label><input id="invSearch" type="search" placeholder="Search products..."></div></div>
+          </div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table class="jobs wide">
+                <caption class="sr-only">All products</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Product</th><th scope="col">Category</th><th scope="col">Price</th>
+                    <th scope="col">Stock</th><th scope="col">Status</th><th scope="col">Update stock</th><th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="invRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= REPORTS ================= -->
+      <div class="view" id="view-reports" hidden>
+        <div class="print-only print-head">
+          <h2>CellHub - Sales Report</h2>
+          <p id="rPeriodPrint"></p>
+          <p id="rPrinted"></p>
+        </div>
+        <h1 class="page-title" tabindex="-1">Reports</h1>
+        <p class="page-sub">Sales summary for the period you choose. <span id="rPeriod"></span></p>
+
+        <section class="card no-print" aria-labelledby="filterTitle">
+          <div class="card-head"><h2 id="filterTitle"><span aria-hidden="true">🗓️</span> Choose a period</h2></div>
+          <div class="card-body">
+            <form id="repForm" class="report-filters">
+              <div class="field"><label for="repFrom">From</label><input id="repFrom" type="date"></div>
+              <div class="field"><label for="repTo">To</label><input id="repTo" type="date"></div>
+              <div class="field"><button type="submit" class="btn-primary">Show report</button></div>
+              <div class="quick">
+                <button id="btnToday" type="button" class="btn">Today</button>
+                <button id="btnMonth" type="button" class="btn">This month</button>
+                <button id="btnAll" type="button" class="btn">All time</button>
+                <button id="printBtn" type="button" class="btn">🖨️ Print report</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <div class="stats">
+          <div class="stat"><span class="stat-icon green" aria-hidden="true">💰</span><div><p class="stat-label">Total sales</p><p class="stat-num" id="rTotal">&#8369;0</p></div></div>
+          <div class="stat"><span class="stat-icon" aria-hidden="true">🔧</span><div><p class="stat-label">Repair payments</p><p class="stat-num" id="rServices">&#8369;0</p></div></div>
+          <div class="stat"><span class="stat-icon violet" aria-hidden="true">📦</span><div><p class="stat-label">Product sales</p><p class="stat-num" id="rProducts">&#8369;0</p></div></div>
+          <div class="stat"><span class="stat-icon amber" aria-hidden="true">🧾</span><div><p class="stat-label">Transactions</p><p class="stat-num" id="rCount">0</p></div></div>
+          <div class="stat"><span class="stat-icon amber" aria-hidden="true">⏳</span><div><p class="stat-label">Still unpaid</p><p class="stat-num" id="rOutstanding">&#8369;0</p></div></div>
+        </div>
+
+        <div class="two-col">
+          <section class="card" aria-labelledby="dayTitle">
+            <div class="card-head"><h2 id="dayTitle">Sales per day</h2></div>
+            <div class="card-body"><div id="rDayBars"></div></div>
+          </section>
+          <section class="card" aria-labelledby="methodTitle">
+            <div class="card-head"><h2 id="methodTitle">By payment method</h2></div>
+            <div class="card-body">
+              <table class="jobs small">
+                <caption class="sr-only">Sales by payment method</caption>
+                <thead><tr><th scope="col">Method</th><th scope="col">Payments</th><th scope="col">Total</th></tr></thead>
+                <tbody id="rMethodRows"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <section class="card" aria-labelledby="topTitle">
+          <div class="card-head"><h2 id="topTitle">Top-selling products</h2></div>
+          <div class="card-body">
+            <table class="jobs small">
+              <caption class="sr-only">Top-selling products</caption>
+              <thead><tr><th scope="col">Product</th><th scope="col">Units sold</th><th scope="col">Sales</th></tr></thead>
+              <tbody id="rTopRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="itemsTitle">
+          <div class="card-head"><h2 id="itemsTitle">All transactions in this period</h2></div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table class="jobs">
+                <caption class="sr-only">Transactions</caption>
+                <thead><tr><th scope="col">Date</th><th scope="col">Customer</th><th scope="col">Item</th><th scope="col">Method</th><th scope="col">Amount</th></tr></thead>
+                <tbody id="rItemRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="common.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
