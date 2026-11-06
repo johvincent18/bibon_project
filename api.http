@@ -160,3 +160,16 @@ DELETE http://localhost:3000/customers/1
 
 ### 17. PUBLIC read, no token (expect 200 + list)
 GET http://localhost:3000/customers
+
+
+### 1. Good answer
+GET http://localhost:3000/weather
+
+### 2. Repeat (dapat cached: true)
+GET http://localhost:3000/weather
+
+### 3. Manila
+GET http://localhost:3000/weather?city=Manila
+
+### 4. City not found (404)
+GET http://localhost:3000/weather?city=Nowhereville

@@ -747,6 +747,37 @@ $('detailSelect').addEventListener('change', () => showCustomer($('detailSelect'
 $('custSearch').addEventListener('input', renderCustomers);
 $('invSearch').addEventListener('input', renderProducts);
 
+// ---------- WEATHER ----------
+function tipFor(w) {
+  if (w.condition.toLowerCase().includes('rain')) {
+    return 'Tip: rainy day. Expect more water-damaged phones. Check for moisture before charging.';
+  }
+  if (w.tempC >= 33) {
+    return 'Tip: very hot day. Expect overheating and swollen batteries. Remind customers not to charge under the sun.';
+  }
+  return 'Tip: good weather for walk-in customers and quick repairs.';
+}
+
+async function loadWeather(city) {
+  const result = $('weatherResult');
+  $('weatherTip').textContent = '';
+  result.textContent = 'Loading weather...';
+  try {
+    const w = await api('/weather?city=' + encodeURIComponent(city));
+    result.textContent =
+      w.city + ', ' + w.country + ': ' + w.tempC + ' °C, ' + w.condition +
+      ' (feels like ' + w.feelsLikeC + ' °C, humidity ' + w.humidity + '%)';
+    $('weatherTip').textContent = tipFor(w);
+  } catch (err) {
+    result.textContent = 'Problem: ' + err.message;
+  }
+}
+
+$('weatherForm').addEventListener('submit', (event) => {
+  event.preventDefault();
+  runForm($('weatherForm'), () => loadWeather($('weatherCity').value));
+});
+
 // ---------- START ----------
 async function start() {
   if (!getToken()) {
@@ -765,6 +796,7 @@ async function start() {
   showFlash();
   setPeriod('month');
   syncPayType();
+  loadWeather('Lucena');
   await loadAll();
   showView(location.hash.slice(1));
 }

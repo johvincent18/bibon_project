@@ -138,6 +138,74 @@ app.get('/auth/me', requireAuth, (req, res) => {
   });
 });
 
+  // ---------- WEATHER (THIRD PARTY API) ----------
+const WEATHER_KEY = process.env.WEATHER_KEY;
+const WEATHER_URL = 'https://api.weatherapi.com/v1/current.json';
+const weatherCache = new Map();
+
+const weatherLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 30,
+  message: { error: 'Too many weather requests. Please wait a minute.' },
+});
+
+app.get('/weather', weatherLimiter, async (req, res) => {
+  if (!WEATHER_KEY) {
+    return res.status(503).json({ error: 'Weather is not set up on this server' });
+  }
+
+  const city = String(req.query.city || 'Lucena').trim();
+
+  if (city === '' || city.length > 60) {
+    return res.status(400).json({ error: 'city must be 1 to 60 characters' });
+  }
+
+  const saved = weatherCache.get(city.toLowerCase());
+
+  if (saved && Date.now() - saved.time < 5 * 60 * 1000) {
+    return res.json({ ...saved.data, cached: true });
+  }
+
+  const params = new URLSearchParams({ key: WEATHER_KEY, q: city });
+  const url = WEATHER_URL + '?' + params;
+
+  let response;
+
+  try {
+    response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+  } catch (err) {
+    return res
+      .status(504)
+      .json({ error: 'The weather service could not be reached. Try again.' });
+  }
+
+  const body = await response.json().catch(() => null);
+
+  if (!response.ok || !body || !body.current) {
+    if (body && body.error && body.error.code === 1006) {
+      return res.status(404).json({ error: 'City not found' });
+    }
+
+    console.error('Weather service problem:', response.status, body && body.error);
+
+    return res
+      .status(502)
+      .json({ error: 'The weather service is not available right now.' });
+  }
+
+  const data = {
+    city: body.location.name,
+    country: body.location.country,
+    tempC: body.current.temp_c,
+    feelsLikeC: body.current.feelslike_c,
+    humidity: body.current.humidity,
+    condition: body.current.condition.text,
+  };
+
+  weatherCache.set(city.toLowerCase(), { time: Date.now(), data });
+
+  res.json({ ...data, cached: false });
+});
 // ---------- CUSTOMERS ----------
 app.get('/customers', (req, res) => {
   res.json(db.prepare('SELECT * FROM customers').all());

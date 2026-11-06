@@ -51,6 +51,22 @@
           <div class="stat" style="--d:.26s"><span class="stat-icon violet" aria-hidden="true">📦</span><div><p class="stat-label">Low-stock items</p><p class="stat-num" id="statLow">0</p></div></div>
         </div>
 
+        <!-- ===== WEATHER (NEW) ===== -->
+        <section id="weatherSection" class="card" aria-labelledby="weatherTitle">
+          <div class="card-head"><h2 id="weatherTitle"><span aria-hidden="true">🌤️</span> Today's weather</h2></div>
+          <div class="card-body">
+            <form id="weatherForm" class="form-grid">
+              <div class="field">
+                <label for="weatherCity">City</label>
+                <input id="weatherCity" type="text" value="Lucena" required>
+              </div>
+              <div class="field"><button type="submit" class="btn-primary">Check weather</button></div>
+            </form>
+            <p id="weatherResult" aria-live="polite">Loading weather...</p>
+            <p id="weatherTip"></p>
+          </div>
+        </section>
+
         <div class="grid">
           <div>
             <section id="addSection" class="card" aria-labelledby="addTitle" style="--d:.15s">
@@ -425,6 +441,11 @@
       </div>
 
     </main>
+
+    <!-- Credit link required by WeatherAPI (NEW) -->
+    <footer class="site-footer">
+      <p>Weather data from <a href="https://www.weatherapi.com/">WeatherAPI.com</a></p>
+    </footer>
   </div>
 </div>
 
