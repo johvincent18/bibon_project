@@ -48,6 +48,18 @@ function badge(kind, text) {
   return el('span', 'badge ' + kind, text);
 }
 
+// Minimal SVG icon from the sprite in dashboard.html
+function icon(name) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'icon');
+  svg.setAttribute('aria-hidden', 'true');
+  const use = document.createElementNS(NS, 'use');
+  use.setAttribute('href', '#i-' + name);
+  svg.appendChild(use);
+  return svg;
+}
+
 function statusBadge(status) {
   return badge(
     's-' + String(status).toLowerCase().replace(/[^a-z]+/g, '-'),
@@ -422,7 +434,7 @@ function makeStatusSelect(j) {
   return select;
 }
 
-// ---------- UPDATED JOB DELETE BUTTON ----------
+// ---------- JOB DELETE BUTTON ----------
 
 function makeJobDeleteButton(j) {
   const hasPayments = payments.some(
@@ -698,12 +710,11 @@ function renderPayments() {
     addCell(tr, p.paid_at).classList.add('pay-date');
     addCell(tr, p.customer_name || 'Walk-in');
 
-    // item with a small icon (repair or product)
+    // item with a minimal icon (repair or product)
     const itemCell = addCell(tr, '');
-    itemCell.append(
-      el('span', 'pay-ico', p.job_id ? '🔧' : '🛍️'),
-      document.createTextNode(' ' + itemText(p))
-    );
+    const ico = el('span', 'pay-ico');
+    ico.appendChild(icon(p.job_id ? 'wrench' : 'bag'));
+    itemCell.append(ico, document.createTextNode(' ' + itemText(p)));
 
     // colored payment method badge
     addCell(tr, '').appendChild(

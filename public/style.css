@@ -175,6 +175,19 @@ main:focus { outline: none; }
 .page-title { font-size: 28px; letter-spacing: -0.5px; animation: rise 0.6s ease both; }
 .page-sub { color: var(--muted); margin-bottom: 20px; animation: rise 0.6s ease 0.05s both; }
 
+/* ---------- Minimal SVG icons ---------- */
+.icon {
+  width: 1.1em;
+  height: 1.1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -0.18em;
+  flex-shrink: 0;
+}
+
 /* ---------- Stat cards ---------- */
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 16px; margin-bottom: 20px; }
 .stat {
@@ -185,10 +198,11 @@ main:focus { outline: none; }
 }
 .stat:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(15, 40, 90, 0.12); }
 .stat > div { min-width: 0; }
-.stat-icon { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; background: #e3ecff; flex: none; }
-.stat-icon.amber { background: #fff1cf; }
-.stat-icon.green { background: #d9f5e4; }
-.stat-icon.violet { background: #e9e4fb; }
+.stat-icon { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; background: #e3ecff; color: #3b4cca; flex: none; }
+.stat-icon.amber { background: #fff1cf; color: #b45309; }
+.stat-icon.green { background: #d9f5e4; color: #15803d; }
+.stat-icon.violet { background: #e9e4fb; color: #6d28d9; }
+.stat-icon .icon { width: 26px; height: 26px; stroke-width: 2; vertical-align: 0; }
 .stat-label { color: var(--muted); font-size: 14px; font-weight: 600; }
 .stat-num { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; overflow-wrap: anywhere; }
 
@@ -408,6 +422,7 @@ tbody tr:hover { background: #f7faff; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .stat { flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px; }
   .stat-icon { width: 40px; height: 40px; font-size: 18px; border-radius: 12px; }
+  .stat-icon .icon { width: 22px; height: 22px; }
   .stat-num { font-size: 20px; }
 
   .card-head { padding: 14px 16px; }
@@ -724,6 +739,13 @@ tbody tr:hover { background: #f7faff; }
 
   /* 7. Report bars */
   .app .bar-track { background: rgba(255, 255, 255, 0.18); }
+
+  /* 8. Stat icons: dark strokes on the light tiles (the glass theme made
+        everything white, so re-set the colors here) */
+  .app .stat-icon { color: #3b4cca; }
+  .app .stat-icon.amber { color: #b45309; }
+  .app .stat-icon.green { color: #15803d; }
+  .app .stat-icon.violet { color: #6d28d9; }
 }
 
 
@@ -1025,11 +1047,11 @@ input:focus, select:focus { transform: translateY(-1px); }
 .actions select:focus { transform: none; }
 
 /* ---------- F) Sidebar menu ---------- */
-.nav a > span:first-child {
+.nav a > .icon:first-child {
   display: inline-block;
   transition: transform 0.35s var(--ease-spring);
 }
-.nav a:hover > span:first-child { transform: scale(1.28) rotate(-8deg); }
+.nav a:hover > .icon:first-child { transform: scale(1.2) rotate(-8deg); }
 .nav a.active { box-shadow: 0 8px 22px rgba(37, 99, 235, 0.45); }
 
 @media (min-width: 821px) {
@@ -1043,7 +1065,7 @@ input:focus, select:focus { transform: translateY(-1px); }
     transform: translateY(-50%);
     animation: barIn 0.45s var(--ease-spring);
   }
-  .sidebar .logo > span:first-child {
+  .sidebar .logo > .icon:first-child {
     display: inline-block;
     animation: bob 3.4s ease-in-out infinite;
   }
