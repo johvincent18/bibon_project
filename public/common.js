@@ -27,15 +27,19 @@ function flashTake(key) {
 }
 
 // ---------- MESSAGES (toast) ----------
+// How long a message stays on screen (in seconds). Change these if you want.
+const MESSAGE_SECONDS = { ok: 3, error: 5 };
+
 let messageTimer;
 function showMessage(text, isError) {
   const box = $('message');
   box.textContent = (isError ? 'Problem: ' : '') + text;
   box.className = (isError ? 'error' : 'ok') + ' show';
+
+  // Every message (success AND problem) hides itself after its time
   clearTimeout(messageTimer);
-  if (!isError) {
-    messageTimer = setTimeout(() => box.classList.remove('show'), 5000);
-  }
+  const seconds = isError ? MESSAGE_SECONDS.error : MESSAGE_SECONDS.ok;
+  messageTimer = setTimeout(() => box.classList.remove('show'), seconds * 1000);
 }
 function flash(text, isError) {
   flashSet('cellhubFlash', JSON.stringify({ text, error: !!isError }));

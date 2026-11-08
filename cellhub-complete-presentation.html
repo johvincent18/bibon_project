@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="claude:viewport-fit-sides" content="cover">
+  <title>CellHub — Complete Presentation with Explanations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111827;
+      --fg-muted: #6b7280;
+      --accent: #059669;
+      --accent-bg: #ecfdf5;
+      --accent-strong: #047857;
+      --border: #e5e7eb;
+      --card: #f9fafb;
+      --card-border: #e5e7eb;
+      --radius: 10px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.06);
+      --font-heading: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --fg: #f1f5f9;
+        --fg-muted: #94a3b8;
+        --accent: #10b981;
+        --accent-bg: #064e3b;
+        --accent-strong: #34d399;
+        --border: #1e293b;
+        --card: #1e293b;
+        --card-border: #334155;
+        --shadow: 0 2px 8px rgba(0,0,0,0.3);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.7;
+      font-size: 16px;
+      padding: env(safe-area-inset-top, 0px) max(24px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(24px, env(safe-area-inset-left, 0px));
+    }
+
+    .container { max-width: 1000px; margin: 0 auto; }
+
+    /* Top progress bar */
+    .progress-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 1000;
+      background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+      transform-origin: left; transform: scaleX(0);
+    }
+
+    /* Section */
+    section {
+      padding: 40px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    section:last-of-type { border-bottom: none; }
+
+    h1 { font-family: var(--font-heading); font-size: clamp(32px, 4vw, 44px); font-weight: 700; margin: 0 0 8px; letter-spacing: -0.02em; }
+    h2 { font-family: var(--font-heading); font-size: 26px; font-weight: 600; margin: 0 0 20px; display: flex; align-items: center; gap: 12px; }
+    h2::before { content: ''; width: 6px; height: 28px; background: var(--accent); border-radius: 3px; }
+    h3 { font-family: var(--font-heading); font-size: 18px; font-weight: 600; margin: 20px 0 10px; color: var(--accent); }
+    h4 { font-family: var(--font-heading); font-size: 15px; font-weight: 600; margin: 16px 0 8px; color: var(--fg); }
+    p { margin: 0 0 14px; color: var(--fg); }
+    .lead { font-size: 19px; font-weight: 500; color: var(--fg); margin-bottom: 28px; }
+
+    /* Explanation boxes */
+    .explain {
+      background: var(--accent-bg);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .explain strong { color: var(--accent-strong); }
+    .explain code { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+    @media (prefers-color-scheme: dark) {
+      .explain code { background: rgba(255,255,255,0.1); }
+    }
+
+    .explain-title { font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .explain-title::before { content: '💡'; font-size: 16px; }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .grid { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+    /* Badges */
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; font-size: 12px; font-weight: 600;
+      border-radius: 20px; border: 1px solid;
+    }
+    .badge-tech { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+    .badge-concept { background: #dbeafe; color: #2563eb; border-color: #bfdbfe; }
+    .badge-warn { background: #fef3c7; color: #d97706; border-color: #fde68a; }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--fg-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg); }
+    td { font-family: var(--font-mono); }
+    tr:hover td { background: var(--bg); }
+    .method { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; font-family: var(--font-mono); }
+    .method.get { background: #dbeafe; color: #2563eb; }
+    .method.post { background: var(--accent-bg); color: var(--accent); }
+    .method.put { background: #fef3c7; color: #d97706; }
+    .method.delete { background: #fee2e2; color: #dc2626; }
+
+    /* Code blocks */
+    .code-block {
+      background: #111827; color: #e5e7eb; padding: 16px; border-radius: var(--radius);
+      font-family: var(--font-mono); font-size: 13px; overflow-x: auto; margin: 16px 0; line-height: 1.6;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .key { color: #a78bfa; }
+    .code-block .str { color: #6ee7b7; }
+    .code-block .fn { color: #60a5fa; }
+    .code-block .num { color: #fbbf24; }
+
+    /* Two column */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* Warning box */
+    .warning-box {
+      background: #fef3c7; border: 1px solid #fcd34d; border-radius: var(--radius);
+      padding: 20px; margin: 20px 0;
+    }
+    @media (prefers-color-scheme: dark) {
+      .warning-box { background: #1f2937; border-color: #fbbf24; }
+    }
+    .warning-box h3 { color: #b45309; margin-top: 0; }
+    @media (prefers-color-scheme: dark) {
+      .warning-box h3 { color: #fbbf24; }
+    }
+
+    /* Success box */
+    .success-box {
+      background: var(--accent-bg); border: 1px solid var(--accent); border-radius: var(--radius);
+      padding: 20px; margin: 20px 0;
+    }
+    .success-box h3 { color: var(--accent-strong); margin-top: 0; }
+
+    /* Speaker notes */
+    .notes-toggle {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;
+      margin-bottom: 16px; color: var(--fg);
+    }
+    .notes-toggle:hover { border-color: var(--accent); background: var(--accent-bg); }
+    .speaker-notes {
+      display: none; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; margin-top: 16px; font-size: 14px; line-height: 1.8;
+    }
+    .speaker-notes.show { display: block; animation: slideDown 0.2s ease; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+    .speaker-notes h4 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); }
+    .speaker-notes ul { margin: 0; padding-left: 20px; }
+    .speaker-notes li { margin-bottom: 8px; }
+
+    /* Key takeaway */
+    .takeaway {
+      background: var(--card); border: 2px solid var(--accent); border-radius: var(--radius);
+      padding: 20px; margin: 20px 0; text-align: center;
+    }
+    .takeaway p { margin: 0; font-size: 16px; font-weight: 500; color: var(--accent-strong); }
+
+    /* Footer */
+    .footer { text-align: center; padding: 32px 0; color: var(--fg-muted); font-size: 13px; }
+
+    /* Print styles */
+    @media print {
+      .notes-toggle, .speaker-notes, .progress-bar { display: none !important; }
+      section { page-break-inside: avoid; }
+      body { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="container">
+
+    <!-- ============================================================
+         SECTION 1: PROJECT OVERVIEW
+         ============================================================ -->
+    <section id="overview">
+      <h1>CellHub</h1>
+      <p class="lead">A complete cellphone repair shop management system — customers, repair jobs, payments, inventory & reports in one place.</p>
+
+      <div class="badges">
+        <span class="badge badge-tech">Node.js + Express</span>
+        <span class="badge badge-tech">SQLite (better-sqlite3)</span>
+        <span class="badge badge-tech">JWT Authentication</span>
+        <span class="badge badge-tech">Render Deployment</span>
+        <span class="badge badge-tech">Vanilla JS Frontend</span>
+      </div>
+
+      <h2>What It Does</h2>
+      <div class="grid grid-3">
+        <div class="card">
+          <h4>👥 Customers</h4>
+          <p>Add, view, search customers. Required: name + phone. Optional: email, address. Delete blocked if they have jobs or payments.</p>
+        </div>
+        <div class="card">
+          <h4>🔧 Repair Jobs</h4>
+          <p>Track device model, issue, job type, price. Status workflow: <code>Pending → In Progress → Completed → Released</code>. Linked to a customer.</p>
+        </div>
+        <div class="card">
+          <h4>💰 Payments</h4>
+          <p>Record payments for jobs (partial/full) or walk-in product sales. Methods: Cash, GCash, Maya, Card. Validates balance, prevents overpay.</p>
+        </div>
+        <div class="card">
+          <h4>📦 Inventory</h4>
+          <p>Products with category, price, stock, reorder level. Low-stock alerts on dashboard. Stock auto-decrements on sale.</p>
+        </div>
+        <div class="card">
+          <h4>📊 Reports</h4>
+          <p>Sales by date range: totals, by payment method, by day, top 5 products, outstanding balances. Print-friendly.</p>
+        </div>
+        <div class="card">
+          <h4>🌤 Weather</h4>
+          <p>Current weather for Lucena (or any city). 5-min cache, 30 req/min limit. Shows temp, humidity, condition + shop tip.</p>
+        </div>
+      </div>
+
+      <div class="explain">
+        <div class="explain-title">How to explain this in 30 seconds</div>
+        <p><strong>"CellHub replaces paper notebooks for a cellphone repair shop."</strong> Instead of writing customer names, repair details, and payments in a notebook, the shop owner uses this web app. It runs on a $0 Render free tier, uses a simple SQLite database, and has zero build step — just plain JavaScript. The stack is intentionally boring so it's easy to maintain and deploy.</p>
+      </div>
+
+      <button class="notes-toggle" onclick="toggleNotes('notes-overview')">🎤 Show presenter notes</button>
+      <div class="speaker-notes" id="notes-overview">
+        <h4>Presenter Notes — Overview</h4>
+        <ul>
+          <li><strong>One-liner:</strong> "CellHub replaces paper notebooks for a cellphone repair shop — customers, jobs, payments, inventory, reports in one system."</li>
+          <li><strong>Tech stack in 10 seconds:</strong> "Express API with SQLite database, JWT authentication, vanilla JavaScript frontend. No React, no build tools, no Docker — just plain files."</li>
+          <li><strong>Target user:</strong> Small repair shops in the Philippines (weather defaults to Lucena, currency in pesos).</li>
+          <li><strong>Key differentiator:</strong> Simple enough to run on a $0 Render free tier, but structured enough to migrate to PostgreSQL later when they need persistent data.</li>
+          <li><strong>Current status:</strong> MVP complete. All core features work. Main blocker for real use: Render free tier wipes the database on every deploy (explained in Deployment section).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 2: SYSTEM ARCHITECTURE
+         ============================================================ -->
+    <section id="architecture">
+      <h2>System Architecture</h2>
+
+      <div class="card" style="text-align: center; padding: 32px;">
+        <div style="font-family: var(--font-mono); font-size: 15px; line-height: 2.4; color: var(--fg-muted);">
+          Browser (HTML/JS/CSS)
+          <br><span style="color: var(--accent);">⇅ HTTP + JSON + JWT</span>
+          <br>Express Server (<code>server.js</code>)
+          <br><span style="color: var(--accent);">⇅ better-sqlite3</span>
+          <br>SQLite File (<code>cellhub.db</code>)
+          <br>
+          <br><span style="color: var(--accent);">⇅ HTTPS</span>
+          <br>WeatherAPI.com
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top: 20px;">
+        <div class="card">
+          <h4>Frontend → Backend</h4>
+          <ul style="color: var(--fg-muted); line-height: 2;">
+            <li>Static files served from <code>public/</code></li>
+            <li>All API calls go to same origin (no CORS issues)</li>
+            <li>JWT in <code>Authorization: Bearer <token></code> header</li>
+            <li>Login stores token in <code>localStorage</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Backend → Database</h4>
+          <ul style="color: var(--fg-muted); line-height: 2;">
+            <li>Single <code>cellhub.db</code> file in project root</li>
+            <li><code>better-sqlite3</code> = synchronous, very fast</li>
+            <li>Prepared statements (no SQL injection possible)</li>
+            <li>Foreign keys enforced (<code>PRAGMA foreign_keys=ON</code>)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="explain">
+        <div class="explain-title">Why this architecture?</div>
+        <p><strong>Monolith, not microservices.</strong> One Express app handles everything — auth, API, static file serving, business logic. This is the right choice for a small app: simple to deploy, simple to debug, simple to understand. No network calls between services, no distributed tracing needed.</p>
+        <p><strong>Why SQLite?</strong> Zero configuration, file-based, perfect for a single shop with one database. <code>better-sqlite3</code> is synchronous (no async/await needed) and faster than async drivers for local files.</p>
+        <p><strong>No ORM.</strong> Raw SQL with parameterized queries. More control, fewer dependencies, easier to audit. The schema is small enough that an ORM would add complexity without benefit.</p>
+        <p><strong>Stateless auth.</strong> JWT tokens mean the server doesn't store sessions. If we ever needed to scale horizontally (multiple server instances), we could — though SQLite wouldn't support that.</p>
+      </div>
+
+      <button class="notes-toggle" onclick="toggleNotes('notes-arch')">🎤 Show presenter notes</button>
+      <div class="speaker-notes" id="notes-arch">
+        <h4>Presenter Notes — Architecture</h4>
+        <ul>
+          <li><strong>Monolith = good here:</strong> "One Express app does everything. Simple to deploy, simple to debug. Microservices would be premature optimization."</li>
+          <li><strong>SQLite choice:</strong> "Zero config, file-based, perfect for a single shop. <code>better-sqlite3</code> is synchronous and very fast for local files."</li>
+          <li><strong>No ORM:</strong> "Raw SQL with parameterized queries. More control, fewer dependencies, easier to understand. The schema is small — an ORM would add complexity without benefit."</li>
+          <li><strong>JWT = stateless:</strong> "Token contains user ID, email, role. Expiry = 1 hour. No server-side session store needed. Scales horizontally if we ever move off SQLite."</li>
+          <li><strong>Weather API:</strong> "External dependency. Cached 5 min in memory. Rate limited to 30/min. If WeatherAPI goes down, the app still works — just no weather widget."</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 3: DATABASE SCHEMA
+         ============================================================ -->
+    <section id="database">
+      <h2>Database — 5 Tables</h2>
+
+      <div class="explain">
+        <div class="explain-title">The big picture</div>
+        <p>Five tables. <strong>users</strong> = staff accounts. <strong>customers</strong> = shop customers. <strong>service_jobs</strong> = repair work (links to customers). <strong>products</strong> = inventory items. <strong>payments</strong> = the glue table linking customers, jobs, and products with money. Foreign keys enforced everywhere.</p>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>users (staff accounts)</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Purpose</th></tr></thead>
+              <tbody>
+                <tr><td>id</td><td>INTEGER</td><td>PK, auto</td><td>Unique identifier</td></tr>
+                <tr><td>name</td><td>TEXT</td><td>NOT NULL</td><td>Display name</td></tr>
+                <tr><td>email</td><td>TEXT</td><td>UNIQUE, NOT NULL</td><td>Login + unique key</td></tr>
+                <tr><td>passwordHash</td><td>TEXT</td><td>NOT NULL</td><td>bcrypt cost 10</td></tr>
+                <tr><td>role</td><td>TEXT</td><td>DEFAULT 'staff'</td><td>Future: 'admin'</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>customers (shop clients)</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Purpose</th></tr></thead>
+              <tbody>
+                <tr><td>id</td><td>INTEGER</td><td>PK, auto</td><td>Unique identifier</td></tr>
+                <tr><td>name</td><td>TEXT</td><td>NOT NULL</td><td>Required</td></tr>
+                <tr><td>phone</td><td>TEXT</td><td>NOT NULL</td><td>Primary contact</td></tr>
+                <tr><td>email</td><td>TEXT</td><td>nullable</td><td>Optional</td></tr>
+                <tr><td>address</td><td>TEXT</td><td>nullable</td><td>Optional</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>service_jobs (repair work)</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Purpose</th></tr></thead>
+              <tbody>
+                <tr><td>id</td><td>INTEGER</td><td>PK, auto</td><td>Unique identifier</td></tr>
+                <tr><td>customer_id</td><td>INTEGER</td><td>FK → customers</td><td>Who owns the device</td></tr>
+                <tr><td>device_model</td><td>TEXT</td><td>NOT NULL</td><td>e.g. "iPhone 11"</td></tr>
+                <tr><td>issue</td><td>TEXT</td><td>nullable</td><td>Problem description</td></tr>
+                <tr><td>job_type</td><td>TEXT</td><td>NOT NULL</td><td>Screen/Battery/Unlock/etc</td></tr>
+                <tr><td>price</td><td>REAL</td><td>≥ 0</td><td>Quoted price</td></tr>
+                <tr><td>status</td><td>TEXT</td><td>Pending/In Progress/Completed/Released</td></tr>
+                <tr><td>date_received</td><td>TEXT</td><td>YYYY-MM-DD</td><td>When device received</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>products (inventory)</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Purpose</th></tr></thead>
+              <tbody>
+                <tr><td>id</td><td>INTEGER</td><td>PK, auto</td><td>Unique identifier</td></tr>
+                <tr><td>name</td><td>TEXT</td><td>NOT NULL</td><td>e.g. "Tempered Glass 9H"</td></tr>
+                <tr><td>category</td><td>TEXT</td><td>NOT NULL</td><td>Accessories/Chargers/Parts</td></tr>
+                <tr><td>price</td><td>REAL</td><td>≥ 0</td><td>Selling price</td></tr>
+                <tr><td>stock</td><td>INTEGER</td><td>DEFAULT 0</td><td>Current quantity</td></tr>
+                <tr><td>reorder_level</td><td>INTEGER</td><td>DEFAULT 5</td><td>Low-stock threshold</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1;">
+          <h3>payments (the link table)</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Purpose</th></tr></thead>
+              <tbody>
+                <tr><td>id</td><td>INTEGER</td><td>PK, auto</td><td>Unique identifier</td></tr>
+                <tr><td>customer_id</td><td>INTEGER</td><td>FK → customers (nullable)</td><td>Who paid</td></tr>
+                <tr><td>job_id</td><td>INTEGER</td><td>FK → service_jobs (nullable)</td><td>Payment for repair</td></tr>
+                <tr><td>product_id</td><td>INTEGER</td><td>FK → products (nullable)</td><td>Payment for product</td></tr>
+                <tr><td>quantity</td><td>INTEGER</td><td>DEFAULT 1</td><td>Qty (products only)</td></tr>
+                <tr><td>amount</td><td>REAL</td><td>NOT NULL</td><td>Money received</td></tr>
+                <tr><td>method</td><td>TEXT</td><td>Cash/GCash/Maya/Card</td><td>Payment method</td></tr>
+                <tr><td>paid_at</td><td>TEXT</td><td>NOT NULL</td><td>Date (YYYY-MM-DD)</td></tr>
+                <tr><td>note</td><td>TEXT</td><td>nullable</td><td>Optional memo</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="explain">
+            <div class="explain-title">Key insight: nullable foreign keys</div>
+            <p>A payment row has <strong>either</strong> <code>job_id</strong> <strong>or</strong> <code>product_id</code> (never both, enforced in code). <strong>Job payment:</strong> customer pays for a repair → has <code>customer_id</code> + <code>job_id</code>. <strong>Walk-in sale:</strong> customer buys a case → has <code>customer_id</code> + <code>product_id</code> + <code>quantity</code>. <strong>Anonymous sale:</strong> walk-in buys charger, no customer record → only <code>product_id</code>. One table handles all three cases.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="explain">
+        <div class="explain-title">Relationships visualized</div>
+        <p><code>customers</code> 1──∞ <code>service_jobs</code> (one customer, many repairs)<br>
+        <code>customers</code> 1──∞ <code>payments</code> (one customer, many payments)<br>
+        <code>service_jobs</code> 1──∞ <code>payments</code> (one job, many partial payments)<br>
+        <code>products</code> 1──∞ <code>payments</code> (one product, many sales)</p>
+      </div>
+
+      <button class="notes-toggle" onclick="toggleNotes('notes-db')">🎤 Show presenter notes</button>
+      <div class="speaker-notes" id="notes-db">
+        <h4>Presenter Notes — Database</h4>
+        <ul>
+          <li><strong>Explain FKs simply:</strong> "<code>service_jobs</code> links to <code>customers</code>. <code>payments</code> links to <code>customers</code>, <code>jobs</code>, OR <code>products</code> — that's how we track who paid for what."</li>
+          <li><strong>Why nullable FKs in payments:</strong> "Walk-in product sales don't have a job. Job payments don't have a product. The table handles both. It's a polymorphic association done simply."</li>
+          <li><strong>No cascade deletes:</strong> "We block deletion in code instead — returns 409 error with a clear message. Safer, explicit. Cascade deletes are dangerous; one mistake wipes history."</li>
+          <li><strong>Seed data:</strong> "On first run, <code>db.js</code> inserts 8 sample customers, 8 jobs, 8 products, 10 payments. So the demo always has realistic data."</li>
+          <li><strong>Demo admin:</strong> "<code>DEMO_EMAIL</code> and <code>DEMO_PASSWORD</code> env vars recreate the admin account on every deploy. I can always log in to the live demo."</li>
+          <li><strong>Role field exists but unused:</strong> "Currently only 'staff'. Ready for 'admin' when we add role-based access (403 for admin-only actions)."</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 4: API ENDPOINTS
+         ============================================================ -->
+    <section id="api">
+      <h2>API — 22 Endpoints</h2>
+
+      <div class="explain">
+        <div class="explain-title">REST-ish design</div>
+        <p>Nouns for resources (<code>/customers</code>, <code>/jobs</code>, <code>/products</code>), HTTP verbs for actions. Not perfectly RESTful but pragmatic. <strong>Public reads:</strong> anyone can view customers/jobs without login (good for shop owner checking from phone). <strong>Auth writes:</strong> only mutating endpoints need JWT. <strong>Smart endpoints:</strong> <code>/customers/summary</code> and <code>/jobs/details</code> do SQL joins so frontend doesn't have to — fewer round trips.</p>
+      </div>
+
+      <div class="card">
+        <h3>🔐 Authentication (no token needed)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Method</th><th>Path</th><th>Description</th><th>Validation</th></tr></thead>
+            <tbody>
+              <tr><td><span class="method post">POST</span></td><td><code>/auth/register</code></td><td>Create account</td><td>name, email, password ≥8 chars</td></tr>
+              <tr><td><span class="method post">POST</span></td><td><code>/auth/login</code></td><td>Get JWT token (1hr)</td><td>Rate-limited: 10 per 15 min</td></tr>
+              <tr><td><span class="method get">GET</span></td><td><code>/auth/me</code></td><td>Verify token, return user</td><td>Requires valid JWT</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>👥 Customers (public read, auth write)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Method</th><th>Path</th><th>Description</th><th>Auth</th></tr></thead>
+            <tbody>
+              <tr><td><span class="method get">GET</span></td><td><code>/customers</code></td><td>List all</td><td>No</td></tr>
+              <tr><td><span class="method get">GET</span></td><td><code>/customers/summary</code></td><td>Jobs count + total price per customer</td><td>No</td></tr>
+              <tr><td><span class="method get">GET</span></td><td><code>/customers/:id</code></td><td>Single customer</td><td>No</td></tr>
+              <tr><td><span class="method get">GET</span></td><td><code>/customers/:id/jobs</code></td><td>Jobs for one customer</td><td>No</td></tr>
+              <tr><td><span class="method post">POST</span></td><td><code>/customers</code></td><td>Create (name, phone required)</td><td>🔐 Required</td></tr>
+              <tr><td><span class="method delete">DELETE</span></td><td><code>/customers/:id</code></td><td>Delete (blocked if jobs/payments exist)</td><td>🔐 Required</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🔧 Service Jobs</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Method</th><th>Path</th><th>Description</th><th>Auth</th></tr></thead>
+            <tbody>
+              <tr><td><span class="method get">GET</span></td><td><code>/jobs/details</code></td><td>All jobs + customer name + paid amount</td><td>No</td></tr>
+              <tr><td><span class="method get">GET</span></td><td><code>/jobs</code></td><td>Paginated, filterable, sortable</td><td>No</td></tr>
+              <tr><td><span class="method get">GET</span></td><td><code>/jobs/:id</code></td><td>Single job</td><td>No</td></tr>
+              <tr><td><span class="method post">POST</span></td><td><code>/jobs</code></td><td>Create (validates customer exists)</td><td>🔐 Required</td></tr>
+              <tr><td><span class="method put">PUT</span></td><td><code>/jobs/:id</code></td><td>Update status only</td><td>🔐 Required</td></tr>
+              <tr><td><span class="method delete">DELETE</span></td><td><code>/jobs/:id</code></td><td>Delete (blocked if payments exist)</td><td>🔐 Required</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📦 Inventory, 💰 Payments, 📊 Reports, 🌤 Weather (all 🔐 except weather)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Method</th><th>Path</th><th>Description</th><th>Auth</th></tr></thead>
+            <tbody>
+              <tr><td><span class="method get">GET</span></td><td><code>/products</code></td><td>List all products</td><td>🔐</td></tr>
+              <tr><td><span class="method post">POST</span></td><td><code>/products</code></td><td>Create product</td><td>🔐</td></tr>
+              <tr><td><span class="method put">PUT</span></td><td><code>/products/:id</code></td><td>Update price/stock</td><td>🔐</td></tr>
+              <tr><td><span class="method delete">DELETE</span></td><td><code>/products/:id</code></td><td>Delete (blocked if sold)</td><td>🔐</td></tr>
+              <tr><td><span class="method get">GET</span></td><td><code>/payments</code></td><td>All payments with joined names</td><td>🔐</td></tr>
+              <tr><td><span class="method post">POST</span></td><td><code>/payments</code></td><td>Record payment (job OR product)</td><td>🔐</td></tr>
+              <tr><td><span class="method get">GET</span></td><td><code>/reports/sales</code></td><td>Date-filtered: totals, by method, by day, top products, outstanding</td><td>🔐</td></tr>
+              <tr><td><span class="method get">GET</span></td><td><code>/weather?city=Lucena</code></td><td>Current weather (5-min cache)</td><td>No</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="explain">
+        <div class="explain-title">Special endpoints explained</div>
+        <p><strong><code>/jobs</code> pagination:</strong> <code>?page=1&limit=10&sort=date_received&order=desc&status=Pending&job_type=Screen%20Replacement</code>. Frontend uses this for the jobs table.</p>
+        <p><strong><code>/payments</code> atomic logic:</strong> Job payment validates balance (can't overpay). Product sale uses <code>db.transaction()</code> — stock decrement + payment insert happen together or not at all. Prevents overselling.</p>
+        <p><strong><code>/reports/sales</code>:</strong> One endpoint returns everything: totals, by payment method, daily breakdown, top 5 products, outstanding balance, full item list. Frontend just renders it.</p>
+        <p><strong>Weather caching:</strong> In-memory <code>Map</code> per city, 5-minute TTL. Rate limited to 30 requests/minute. WeatherAPI free tier has strict limits.</p>
+      </div>
+
+      <button class="notes-toggle" onclick="toggleNotes('notes-api')">🎤 Show presenter notes</button>
+      <div class="speaker-notes" id="notes-api">
+        <h4>Presenter Notes — API</h4>
+        <ul>
+          <li><strong>Public reads:</strong> "Anyone can view customers/jobs without login. Only writes need auth. Good for a shop where the owner checks from phone without logging in every time."</li>
+          <li><strong>Smart endpoints:</strong> "<code>/customers/summary</code> and <code>/jobs/details</code> do joins in SQL so the frontend doesn't have to. Reduces round trips."</li>
+          <li><strong>Pagination on /jobs:</strong> "page, limit, sort, order, filter by status/job_type. Frontend uses this for the jobs table."</li>
+          <li><strong>Payments are atomic:</strong> "Product sale = reduce stock + insert payment in one transaction. Can't oversell."</li>
+          <li><strong>Weather is cached:</strong> "5-minute in-memory cache per city. Rate limited to 30/min. WeatherAPI free tier has limits."</li>
+          <li><strong>Error format consistent:</strong> "All errors return <code>{error: 'message'}</code>. 400 for bad input, 401 for auth, 409 for conflicts, 500 for server errors."</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 5: KEY FEATURES & DESIGN DECISIONS
+         ============================================================ -->
+    <section id="features">
+      <h2>Key Features & Design Decisions</h2>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>🔐 JWT Authentication</h3>
+          <ul style="line-height: 2;">
+            <li>Stateless — no server sessions</li>
+            <li>1-hour expiry, stored in localStorage</li>
+            <li>bcrypt cost 10 for password hashing</li>
+            <li>Login rate-limited (10 per 15 min)</li>
+            <li>All mutating endpoints protected</li>
+          </ul>
+          <div class="explain">
+            <div class="explain-title">Why JWT over sessions?</div>
+            <p>No server-side session store needed. Token contains user ID, email, role. Works across multiple server instances (if we ever scale). Simple but secure enough for this scale. Downside: can't revoke individual tokens without a blocklist — acceptable for a small app.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🛡 Referential Integrity</h3>
+          <ul style="line-height: 2;">
+            <li>Foreign keys ON in SQLite (<code>PRAGMA foreign_keys=ON</code>)</li>
+            <li>Deletes blocked in code (409 error)</li>
+            <li>Clear messages: "Delete jobs first"</li>
+            <li>No cascade — explicit is safer</li>
+          </ul>
+          <div class="explain">
+            <div class="explain-title">Why block instead of cascade?</div>
+            <p>Cascade deletes are scary — one mistake wipes history. Blocking forces you to think: "Do I really want to delete this customer who has 5 jobs and 3 payments?" Data integrity > convenience. The 409 response tells you exactly what to clean up first.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>💉 SQL Injection Safe</h3>
+          <ul style="line-height: 2;">
+            <li>All queries use <code>?</code> placeholders</li>
+            <li><code>better-sqlite3</code> prepared statements</li>
+            <li>Zero string concatenation in SQL</li>
+          </ul>
+          <div class="explain">
+            <div class="explain-title">The #1 security win</div>
+            <p><code>db.prepare('SELECT * FROM users WHERE email = ?').get(email)</code> — the <code>?</code> is never executed as SQL. Impossible to inject. This is the single most important security practice in the codebase. No ORM needed; prepared statements are built into the driver.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>⚡ Atomic Transactions</h3>
+          <ul style="line-height: 2;">
+            <li>Product sales: stock−1 + payment insert</li>
+            <li><code>db.transaction(() => { ... })</code></li>
+            <li>Both succeed or both roll back</li>
+          </ul>
+          <div class="explain">
+            <div class="explain-title">Why transactions matter</div>
+            <p>Without transactions, you could decrement stock but crash before recording payment = phantom sale (stock down, no money recorded). Transaction = all or nothing. SQLite transactions are fast and synchronous.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🌱 Auto Seed Data</h3>
+          <ul style="line-height: 2;">
+            <li>On empty DB: 8 customers, 8 jobs, 8 products, 10 payments</li>
+            <li>Demo admin from env vars</li>
+            <li>Survives redeploys on Render</li>
+          </ul>
+          <div class="explain">
+            <div class="explain-title">Seed data = demo-ready</div>
+            <p>Every deploy on Render wipes the DB. Seed data means the live demo always works with realistic data. Demo admin means I can always log in. This is a workaround for ephemeral storage — not a substitute for persistent data in production.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>✅ Input Validation</h3>
+          <ul style="line-height: 2;">
+            <li>Every field checked: type, range, enum, required</li>
+            <li>400 with specific message</li>
+            <li>Email regex, price ≥ 0, status enum</li>
+          </ul>
+          <div class="explain">
+            <div class="explain-title">Validation philosophy</div>
+            <p>Validate early, reject fast, tell the user exactly what's wrong. <code>if (!Number.isInteger(customer_id)) return 400</code> — no generic "invalid input". Frontend shows the exact error message. Also prevents bad data from reaching the database.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🌤 Smart Caching</h3>
+          <ul style="line-height: 2;">
+            <li>Weather endpoint caches 5 min per city</li>
+            <li>In-memory <code>Map</code> (simple, fast)</li>
+            <li>Rate-limited to 30 requests/minute</li>
+          </ul>
+          <div class="explain">
+            <div class="explain-title">Why cache weather?</div>
+            <p>WeatherAPI free tier = 1M calls/month. 30 req/min limit prevents abuse. 5-min cache means 10 users checking weather = 1 API call. In-memory Map is fine for a single server instance; would need Redis for horizontal scaling.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>📦 Error Handling</h3>
+          <ul style="line-height: 2;">
+            <li>Centralized middleware at bottom of <code>server.js</code></li>
+            <li>400 bad JSON, 409 FK conflict, 401 auth, 500 server</li>
+            <li>Consistent format: <code>{error: "message"}</code></li>
+          </ul>
+          <div class="explain">
+            <div class="explain-title">Error handling pattern</div>
+            <p>All errors funnel through two middleware functions. <code>entity.parse.failed</code> catches malformed JSON. <code>SQLITE_CONSTRAINT_FOREIGNKEY</code> catches FK violations (though we check in code first). <code>console.error</code> logs server errors; user sees generic "Something went wrong".</p>
+          </div>
+        </div>
+      </div>
+
+      <button class="notes-toggle" onclick="toggleNotes('notes-features')">🎤 Show presenter notes</button>
+      <div class="speaker-notes" id="notes-features">
+        <h4>Presenter Notes — Key Features</h4>
+        <ul>
+          <li><strong>JWT vs sessions:</strong> "JWT means no server-side session store. Token contains user ID, email, role. Expiry = 1 hour. Simple but secure enough for this scale."</li>
+          <li><strong>Why block deletes instead of cascade:</strong> "Cascade deletes are scary — one mistake wipes history. Blocking forces you to think: 'Do I really want to delete this customer who has 5 jobs and 3 payments?' Data integrity > convenience."</li>
+          <li><strong>Prepared statements:</strong> "This is the #1 security win. <code>db.prepare('SELECT * FROM users WHERE email = ?').get(email)</code> — the <code>?</code> is never executed as SQL. Impossible to inject."</li>
+          <li><strong>Transactions:</strong> "Without transactions, you could decrement stock but crash before recording payment = phantom sale. Transaction = all or nothing."</li>
+          <li><strong>Seed data = demo-ready:</strong> "Every deploy on Render wipes the DB. Seed data means the live demo always works. Demo admin means I can always log in."</li>
+          <li><strong>Validation:</strong> "Validate early, reject fast, tell the user exactly what's wrong. Frontend shows the exact error message."</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 6: FRONTEND
+         ============================================================ -->
+    <section id="frontend">
+      <h2>Frontend — Vanilla JS, No Build Step</h2>
+
+      <div class="explain">
+        <div class="explain-title">Why no React/Vue?</div>
+        <p>Overkill for this. Vanilla JS + CSS custom properties = zero build step, zero dependencies, ~30KB total JS, loads instantly. Deploys as static files. Anyone can read and modify it. The complexity of a framework isn't justified for a CRUD app with 5 views.</p>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <h3>Pages (<code>public/</code>)</h3>
+          <ul style="line-height: 2;">
+            <li><code>login.html</code> — JWT login, remembers token in localStorage</li>
+            <li><code>register.html</code> — New account creation</li>
+            <li><code>index.html</code> — Dashboard (stats, weather, low stock)</li>
+            <li>SPA-style nav via <code>app.js</code> (Customers, Jobs, Payments, Inventory, Reports)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Shared Modules</h3>
+          <ul style="line-height: 2;">
+            <li><code>auth.js</code> — Token storage, authenticated fetch wrapper</li>
+            <li><code>common.js</code> — Formatters (currency, dates), DOM helpers</li>
+            <li><code>style.css</code> — Design tokens, responsive grid, animations</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>UX Highlights</h3>
+        <div class="grid grid-3">
+          <div>
+            <strong>Keyboard accessible</strong><br>
+            <span style="color: var(--fg-muted); font-size: 14px;">Focus states, semantic HTML, tab order</span>
+          </div>
+          <div>
+            <strong>Mobile tables</strong><br>
+            <span style="color: var(--fg-muted); font-size: 14px;">Horizontal scroll on phones</span>
+          </div>
+          <div>
+            <strong>Status badges</strong><br>
+            <span style="color: var(--fg-muted); font-size: 14px;">Color-coded (Pending/In Progress/Completed)</span>
+          </div>
+          <div>
+            <strong>Toast notifications</strong><br>
+            <span style="color: var(--fg-muted); font-size: 14px;">Success/error feedback</span>
+          </div>
+          <div>
+            <strong>Print-friendly</strong><br>
+            <span style="color: var(--fg-muted); font-size: 14px;">Reports view optimized for printing</span>
+          </div>
+          <div>
+            <strong>No framework</strong><br>
+            <span style="color: var(--fg-muted); font-size: 14px;">~30KB JS total, loads instantly</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explain">
+        <div class="explain-title">How the frontend works</div>
+        <p><strong>auth.js is the key:</strong> It wraps <code>fetch()</code> to auto-attach the JWT header. Every API call in <code>app.js</code> just calls <code>api.get()</code> or <code>api.post()</code> — token handling is invisible.</p>
+        <p><strong>SPA-like but not SPA:</strong> <code>app.js</code> swaps views by hiding/showing sections. No router, no history API. Simple, works.</p>
+        <p><strong>Design tokens in CSS:</strong> Colors, spacing, radii defined as CSS variables. Dark mode works automatically via <code>prefers-color-scheme</code>. Change one value, updates everywhere.</p>
+        <p><strong>Mobile-first tables:</strong> On desktop they're normal tables. On mobile they scroll horizontally in a wrapper. No column hiding, no data loss.</p>
+      </div>
+
+      <button class="notes-toggle" onclick="toggleNotes('notes-frontend')">🎤 Show presenter notes</button>
+      <div class="speaker-notes" id="notes-frontend">
+        <h4>Presenter Notes — Frontend</h4>
+        <ul>
+          <li><strong>Why no React/Vue:</strong> "Overkill for this. Vanilla JS + CSS custom properties = zero build step, zero dependencies, 30KB total. Deploys as static files. Anyone can read and modify it."</li>
+          <li><strong>SPA-like but not SPA:</strong> "app.js swaps views by hiding/showing sections. No router, no history API. Simple, works."</li>
+          <li><strong>auth.js is the key:</strong> "It wraps fetch() to auto-attach the JWT header. Every API call in app.js just calls <code>api.get()</code> or <code>api.post()</code> — token handling is invisible."</li>
+          <li><strong>Design tokens in CSS:</strong> "Colors, spacing, radii defined as CSS variables. Dark mode works automatically via <code>prefers-color-scheme</code>. Change one value, updates everywhere."</li>
+          <li><strong>Mobile-first tables:</strong> "On desktop they're normal tables. On mobile they scroll horizontally in a wrapper. No column hiding, no data loss."</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 7: ENVIRONMENT & CONFIGURATION
+         ============================================================ -->
+    <section id="config">
+      <h2>Environment & Configuration</h2>
+
+      <div class="two-col">
+        <div class="card">
+          <h3>.env (not committed to Git)</h3>
+          <div class="code-block"><span class="comment"># Required</span>
+JWT_SECRET=ac2ccb5c1fdf4df71336fe045b99270a39384e8e21ad282b3efe6b383d546fe8
+PORT=3000
+
+<span class="comment"># External API</span>
+WEATHER_KEY=121183ebc08f467d95e45547260611
+
+<span class="comment"># Demo admin (recreated on every deploy)</span>
+DEMO_EMAIL=demo@cellhub.com
+DEMO_PASSWORD=admin123</div>
+        </div>
+        <div class="card">
+          <h3>package.json scripts & deps</h3>
+          <div class="code-block"><span class="comment">// Scripts</span>
+<span class="str">"scripts"</span>: {
+  <span class="str">"start"</span>: <span class="str">"node server.js"</span>,
+  <span class="str">"test"</span>: <span class="str">"node --test"</span>
+},
+
+<span class="comment">// Dependencies (7 total)</span>
+<span class="str">"dependencies"</span>: {
+  <span class="str">"bcryptjs"</span>: <span class="str">"^3.0.3"</span>,      <span class="comment">// password hashing</span>
+  <span class="str">"better-sqlite3"</span>: <span class="str">"^13.0.3"</span>,   <span class="comment">// SQLite driver</span>
+  <span class="str">"cors"</span>: <span class="str">"^2.8.6"</span>,              <span class="comment">// CORS headers</span>
+  <span class="str">"dotenv"</span>: <span class="str">"^18.0.9"</span>,            <span class="comment">// .env loading</span>
+  <span class="str">"express"</span>: <span class="str">"^5.3.0"</span>,            <span class="comment">// web framework</span>
+  <span class="str">"express-rate-limit"</span>: <span class="str">"^8.7.3"</span>, <span class="comment">// rate limiting</span>
+  <span class="str">"jsonwebtoken"</span>: <span class="str">"^9.0.3"</span>        <span class="comment">// JWT</span>
+}</div>
+        </div>
+      </div>
+
+      <div class="explain">
+        <div class="explain-title">What each env var does</div>
+        <p><strong>JWT_SECRET:</strong> 64-char random string. Used to sign/verify tokens. Must be kept secret. Generate with <code>node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</code>.</p>
+        <p><strong>PORT:</strong> Server port. Render sets this automatically; 3000 is local default.</p>
+        <p><strong>WEATHER_KEY:</strong> WeatherAPI.com key. Free tier: 1M calls/month. If missing, <code>/weather</code> returns 503.</p>
+        <p><strong>DEMO_EMAIL / DEMO_PASSWORD:</strong> On server start, <code>db.js</code> checks if this user exists. If not, creates them with role='admin'. This is how the live demo always has a working login.</p>
+      </div>
+
+      <div class="explain">
+        <div class="explain-title">.gitignore</div>
+        <p><code>node_modules/</code>, <code>.env</code>, <code>*.db</code> — secrets and database file never committed. The database is recreated from seed data on deploy.</p>
+      </div>
+
+      <button class="notes-toggle" onclick="toggleNotes('notes-config')">🎤 Show presenter notes</button>
+      <div class="speaker-notes" id="notes-config">
+        <h4>Presenter Notes — Config</h4>
+        <ul>
+          <li><strong>JWT_SECRET:</strong> "64-char random string. Generate with <code>node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"</code>. Must be kept secret — anyone with it can forge tokens."</li>
+          <li><strong>WEATHER_KEY:</strong> "WeatherAPI.com free tier = 1M calls/month. If missing, /weather returns 503 gracefully."</li>
+          <li><strong>DEMO_EMAIL/PASSWORD:</strong> "On server start, db.js checks if this user exists. If not, creates them with role='admin'. This is how the live demo always has a working login."</li>
+          <li><strong>Only 7 dependencies:</strong> "Minimal surface area. No ORM, no validation library, no date library, no UI framework. Each dep serves a clear purpose."</li>
+          <li><strong>.gitignore:</strong> "node_modules, .env, *.db — secrets and database never committed. Database recreated from seed data on deploy."</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 8: DEPLOYMENT — THE CRITICAL CAVEAT
+         ============================================================ -->
+    <section id="deployment">
+      <h2>Deployment & The Critical Caveat</h2>
+
+      <div class="success-box">
+        <h3>✅ What Works on Render Free Tier</h3>
+        <ul style="line-height: 2; margin: 0;">
+          <li>Node.js 22, Express, SQLite all run fine</li>
+          <li>Auto-deploys from GitHub on push</li>
+          <li>Health check at <code>/health</code> (Render pings this)</li>
+          <li>Env vars for secrets (JWT_SECRET, WEATHER_KEY, DEMO_EMAIL/PASSWORD)</li>
+          <li>Demo admin recreated on every deploy</li>
+          <li>Seed data inserted on every deploy</li>
+        </ul>
+      </div>
+
+      <div class="warning-box">
+        <h3>⚠️ The Problem: Ephemeral Storage</h3>
+        <p><strong>Render's free tier uses ephemeral storage.</strong> The <code>cellhub.db</code> file is <strong>deleted on every redeploy, restart, or when the app spins down after inactivity.</strong></p>
+        <p><strong>What survives:</strong> Seed data (re-inserted on start), Demo admin (recreated from env vars)</p>
+        <p><strong>What is LOST:</strong> Any real customers, jobs, payments, products you manually add</p>
+      </div>
+
+      <div class="explain">
+        <div class="explain-title">What "ephemeral storage" means in plain English</div>
+        <p>Think of it like a container that gets thrown away and recreated fresh every time. The code and env vars persist (they're in Git), but the database file does not. On Render free tier, your app runs in a container that can be stopped/restarted at any time. When it restarts, the filesystem is reset to what's in your Git repo — which doesn't include <code>cellhub.db</code> (it's in .gitignore).</p>
+      </div>
+
+      <div class="card">
+        <h3>Fix Options (pick one)</h3>
+        <div class="grid grid-2">
+          <div class="card" style="border-color: var(--accent); background: var(--accent-bg);">
+            <h4 style="color: var(--accent-strong);">Option 1: Render PostgreSQL (Free) ⭐ Recommended</h4>
+            <ul style="line-height: 2; font-size: 14px;">
+              <li>Persistent, managed Postgres — also free</li>
+              <li>Change <code>better-sqlite3</code> → <code>pg</code></li>
+              <li>Minor SQL syntax changes (<code>?</code> → <code>$1, $2</code>)</li>
+              <li>Data survives forever</li>
+              <li>~2-3 hours of work</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Option 2: Render Paid ($7/mo)</h4>
+            <ul style="line-height: 2; font-size: 14px;">
+              <li>Persistent disk for SQLite file</li>
+              <li>No code changes needed</li>
+              <li>But costs money monthly</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Option 3: Railway / Fly.io</h4>
+            <ul style="line-height: 2; font-size: 14px;">
+              <li>Free persistent volumes</li>
+              <li>More config work</li>
+              <li>Good free tiers</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Option 4: Supabase / Neon / PlanetScale</h4>
+            <ul style="line-height: 2; font-size: 14px;">
+              <li>External managed Postgres/MySQL</li>
+              <li>Free tiers available</li>
+              <li>Connection pooling included</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="takeaway">
+        <p>For a class project or demo: current setup is fine. For a real shop taking money: you <strong>must</strong> migrate to persistent database.</p>
+      </div>
+
+      <button class="notes-toggle" onclick="toggleNotes('notes-deploy')">🎤 Show presenter notes</button>
+      <div class="speaker-notes" id="notes-deploy">
+        <h4>Presenter Notes — Deployment</h4>
+        <ul>
+          <li><strong>This is the most important slide.</strong> "The app works perfectly on Render free — except data disappears. This is by design on Render's free tier."</li>
+          <li><strong>Explain ephemeral simply:</strong> "Think of it like a container that gets thrown away and recreated fresh every time. The code and env vars persist (they're in Git), but the database file does not."</li>
+          <li><strong>Why seed data helps demos but not production:</strong> "Seed data = fake customers for the demo. Real customers = real money. You can't lose real money data."</li>
+          <li><strong>PostgreSQL migration is the standard fix:</strong> "Render's free Postgres is the same price (free) but persistent. Code changes: swap <code>better-sqlite3</code> for <code>pg</code>, change <code>?</code> to <code>$1, $2</code>, add connection pooling. About 2-3 hours of work."</li>
+          <li><strong>Don't over-engineer:</strong> "For a class project or demo, the current setup is fine. For a real shop taking money, you must migrate."</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 9: TESTING
+         ============================================================ -->
+    <section id="testing">
+      <h2>Testing</h2>
+
+      <div class="card">
+        <h3>Node.js Built-in Test Runner (<code>npm test</code>)</h3>
+        <p>No Jest, no Mocha — uses Node 22's native <code>node:test</code> module. Zero config, zero dependencies.</p>
+        <div class="code-block"><span class="comment">// tests/auth.test.js</span>
+<span class="key">const</span> test = <span class="key">require</span>(<span class="str">'node:test'</span>);
+<span class="key">const</span> assert = <span class="key">require</span>(<span class="str">'node:assert'</span>);
+
+test(<span class="str">'POST /auth/register creates user'</span>, <span class="key">async</span> () => {
+  <span class="key">const</span> res = <span class="key">await</span> fetch(<span class="str">'http://localhost:3000/auth/register'</span>, {
+    method: <span class="str">'POST'</span>,
+    headers: {<span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>},
+    body: JSON.stringify({name: <span class="str">'Test'</span>, email: <span class="str">'test@x.com'</span>, password: <span class="str">'password123'</span>})
+  });
+  assert.strictEqual(res.status, <span class="num">201</span>);
+  <span class="key">const</span> data = <span class="key">await</span> res.json();
+  assert.ok(data.id);
+});</div>
+        <p style="margin-top: 12px;">Run with <code>npm test</code> — currently passes with 0 failures.</p>
+      </div>
+
+      <div class="explain">
+        <div class="explain-title">Testing approach</div>
+        <p><strong>Integration tests over unit tests:</strong> Tests hit real HTTP endpoints against a running server. More realistic, catches real bugs. <strong>Test database:</strong> Uses a separate test DB file so tests don't pollute dev data. <strong>No mocking:</strong> Tests the actual code paths. <strong>Fast enough:</strong> Node's built-in runner is quick; no transpilation needed.</p>
+      </div>
+
+      <button class="notes-toggle" onclick="toggleNotes('notes-testing')">🎤 Show presenter notes</button>
+      <div class="speaker-notes" id="notes-testing">
+        <h4>Presenter Notes — Testing</h4>
+        <ul>
+          <li><strong>Native test runner:</strong> "Node 22 has <code>node:test</code> built in. No Jest, no config, zero deps. Tests are just .js files."</li>
+          <li><strong>Integration style:</strong> "Tests hit real HTTP endpoints. More realistic, catches real bugs. Uses a separate test DB file."</li>
+          <li><strong>No mocking:</strong> "Tests the actual code paths. Simpler, more reliable."</li>
+          <li><strong>Current coverage:</strong> "Auth, customers, jobs, products, payments, reports. Run with <code>npm test</code> — passes with 0 failures."</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 10: ROADMAP / NEXT STEPS
+         ============================================================ -->
+    <section id="roadmap">
+      <h2>Roadmap / Next Steps</h2>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>🗄 Database (Priority 1)</h3>
+          <ul style="line-height: 2;">
+            <li>Migrate to PostgreSQL (persistent)</li>
+            <li>Add migration system</li>
+            <li>Indexes on foreign keys</li>
+            <li>Connection pooling</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🔐 Auth & Security (Priority 2)</h3>
+          <ul style="line-height: 2;">
+            <li>Admin vs Staff roles (403 for admin-only)</li>
+            <li>Refresh tokens / longer sessions</li>
+            <li>Password reset email flow</li>
+            <li>Rate limit all write endpoints</li>
+            <li>Helmet.js for security headers</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>✨ Features (Priority 3)</h3>
+          <ul style="line-height: 2;">
+            <li>Customer search autocomplete</li>
+            <li>Job filters on frontend</li>
+            <li>SMS/email notifications (job ready)</li>
+            <li>Barcode scanner for products</li>
+            <li>Multi-branch support</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🚀 DevOps (Priority 4)</h3>
+          <ul style="line-height: 2;">
+            <li>Dockerfile for containerization</li>
+            <li>GitHub Actions CI/CD</li>
+            <li>Structured logging (pino)</li>
+            <li>Graceful shutdown (SIGTERM)</li>
+            <li>DB connectivity health check</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="explain">
+        <div class="explain-title">Priority order rationale</div>
+        <p><strong>1. Database persistence</strong> — blocker for real use. Without it, the app is a demo only.<br>
+        <strong>2. Role-based auth</strong> — real shops need "admin can delete, staff can't".<br>
+        <strong>3. Features customers ask for</strong> — talk to a real shop owner first. They'll say "text me when the job is ready" not "multi-branch support".<br>
+        <strong>4. DevOps polish</strong> — nice to have, not blocking.</p>
+      </div>
+
+      <div class="takeaway">
+        <p>The MVP is done. The foundation is solid. Next step = persistent database.</p>
+      </div>
+
+      <button class="notes-toggle" onclick="toggleNotes('notes-roadmap')">🎤 Show presenter notes</button>
+      <div class="speaker-notes" id="notes-roadmap">
+        <h4>Presenter Notes — Roadmap</h4>
+        <ul>
+          <li><strong>Priority order:</strong> "1. Database persistence (blocker for real use). 2. Role-based auth (admin vs staff). 3. Features customers actually ask for. 4. DevOps polish."</li>
+          <li><strong>Don't build everything:</strong> "Talk to a real shop owner first. They'll tell you what they actually need — usually it's 'text me when the job is ready' not 'multi-branch support'."</li>
+          <li><strong>Technical debt to acknowledge:</strong> "No graceful shutdown (SIGTERM handling), no request logging, no automated tests for the frontend, SQLite connection not pooled. All fixable incrementally."</li>
+          <li><strong>This project proves:</strong> "You can build a real, usable business app with zero frontend framework, zero ORM, zero container orchestration. The complexity is optional."</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 11: QUICK REFERENCE — FILE STRUCTURE
+         ============================================================ -->
+    <section id="structure">
+      <h2>Project File Structure</h2>
+
+      <div class="code-block"><span class="comment"># Root</span>
+<span class="str">.</span>
+├── <span class="fn">server.js</span>           <span class="comment"># Express app (27KB) — all routes, middleware</span>
+├── <span class="fn">db.js</span>               <span class="comment"># Database setup, schema, seed data (6.5KB)</span>
+├── <span class="fn">package.json</span>        <span class="comment"># 7 deps, start/test scripts</span>
+├── <span class="fn">.env</span>                <span class="comment"># Secrets (not in git)</span>
+├── <span class="fn">cellhub.db</span>          <span class="comment"># SQLite file (32KB, in .gitignore)</span>
+├── <span class="fn">.gitignore</span>
+│
+├── <span class="comment"># Frontend (public/)</span>
+├── <span class="fn">public/</span>
+│   ├── <span class="fn">index.html</span>          <span class="comment"># Dashboard</span>
+│   ├── <span class="fn">login.html</span>          <span class="comment"># Login page</span>
+│   ├── <span class="fn">register.html</span>       <span class="comment"># Register page</span>
+│   ├── <span class="fn">app.js</span>              <span class="comment"># Main app logic (30KB)</span>
+│   ├── <span class="fn">auth.js</span>             <span class="comment"># Auth fetch wrapper</span>
+│   ├── <span class="fn">common.js</span>           <span class="comment"># Formatters, helpers</span>
+│   ├── <span class="fn">style.css</span>           <span class="comment"># All styles (23KB)</span>
+│   └── <span class="fn">bg.jpg, brand.mp4</span>   <span class="comment"># Assets</span>
+│
+├── <span class="comment"># Tests</span>
+├── <span class="fn">tests/</span>
+│   └── <span class="fn">*.test.js</span>
+│
+└── <span class="comment"># Docs</span>
+    ├── <span class="fn">README.md</span>
+    ├── <span class="fn">PLAN.md</span>
+    ├── <span class="fn">api.http</span>            <span class="comment"># Thunder Client / REST Client requests</span>
+    └── <span class="fn">final-checklist.md</span></div>
+
+      <div class="explain">
+        <div class="explain-title">Key files to know</div>
+        <p><strong>server.js</strong> — The entire backend. All 22 routes, auth middleware, error handling, validation. Read this to understand the API.<br>
+        <strong>db.js</strong> — Schema definition + seed data + demo admin creation. Run once on server start.<br>
+        <strong>public/app.js</strong> — The entire frontend. View switching, API calls, DOM rendering, event handlers.<br>
+        <strong>public/auth.js</strong> — Tiny but critical: stores token, wraps fetch with Authorization header.<br>
+        <strong>.env</strong> — The only file with secrets. Never committed.</p>
+      </div>
+
+      <button class="notes-toggle" onclick="toggleNotes('notes-structure')">🎤 Show presenter notes</button>
+      <div class="speaker-notes" id="notes-structure">
+        <h4>Presenter Notes — File Structure</h4>
+        <ul>
+          <li><strong>server.js = entire backend:</strong> "All routes, middleware, validation, error handling in one file. 27KB. Easy to audit."</li>
+          <li><strong>db.js = schema + seeds:</strong> "Runs on every server start. Creates tables, inserts seed data if empty, creates demo admin from env vars."</li>
+          <li><strong>app.js = entire frontend:</strong> "View switching, API calls, rendering, events. 30KB. No framework."</li>
+          <li><strong>auth.js = tiny but critical:</strong> "Stores token in localStorage, wraps fetch to add Authorization header. 50 lines."</li>
+          <li><strong>.env = only secrets:</strong> "Never committed. JWT_SECRET, WEATHER_KEY, DEMO_EMAIL/PASSWORD."</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>CellHub — Cellphone Repair Shop Management System</p>
+      <p style="margin-top: 8px;">Node.js • Express • SQLite • Vanilla JS</p>
+      <p style="margin-top: 8px; font-size: 12px;">Presentation with detailed explanations for every section</p>
+    </footer>
+  </div>
+
+  <script>
+    // Progress bar
+    const progressBar = document.getElementById('progressBar');
+    const sections = document.querySelectorAll('section[id]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const index = Array.from(sections).indexOf(entry.target);
+          const progress = (index + 1) / sections.length;
+          progressBar.style.transform = `scaleX(${progress})`;
+        }
+      });
+    }, { threshold: 0.5, rootMargin: '-50% 0px -50% 0px' });
+    sections.forEach(s => observer.observe(s));
+
+    // Speaker notes toggle
+    window.toggleNotes = function(id) {
+      const el = document.getElementById(id);
+      const btn = el.previousElementSibling;
+      el.classList.toggle('show');
+      if (el.classList.contains('show')) {
+        btn.innerHTML = '🎤 Hide presenter notes';
+      } else {
+        btn.innerHTML = '🎤 Show presenter notes';
+      }
+    };
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // Keyboard: N = next section, P = previous section
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'n' || e.key === 'N') {
+        const current = Array.from(sections).find(s => {
+          const rect = s.getBoundingClientRect();
+          return rect.top >= -100 && rect.top < window.innerHeight / 2;
+        });
+        if (current) {
+          const idx = Array.from(sections).indexOf(current);
+          if (idx < sections.length - 1) sections[idx + 1].scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+      if (e.key === 'p' || e.key === 'P') {
+        const current = Array.from(sections).find(s => {
+          const rect = s.getBoundingClientRect();
+          return rect.top >= -100 && rect.top < window.innerHeight / 2;
+        });
+        if (current) {
+          const idx = Array.from(sections).indexOf(current);
+          if (idx > 0) sections[idx - 1].scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,4 +1,3 @@
-
 const STATUS_LIST = ['Pending', 'In Progress', 'Completed', 'Released'];
 const PAGE_SIZE = 5;
 const VIEWS = ['dashboard', 'customers', 'payments', 'inventory', 'reports'];
@@ -696,11 +695,22 @@ function renderPayments() {
 
     tr.style.setProperty('--i', Math.min(index, 8));
 
-    addCell(tr, p.paid_at);
+    addCell(tr, p.paid_at).classList.add('pay-date');
     addCell(tr, p.customer_name || 'Walk-in');
-    addCell(tr, itemText(p));
-    addCell(tr, p.method);
-    addCell(tr, peso(p.amount));
+
+    // item with a small icon (repair or product)
+    const itemCell = addCell(tr, '');
+    itemCell.append(
+      el('span', 'pay-ico', p.job_id ? '🔧' : '🛍️'),
+      document.createTextNode(' ' + itemText(p))
+    );
+
+    // colored payment method badge
+    addCell(tr, '').appendChild(
+      badge('m-' + String(p.method).toLowerCase(), p.method)
+    );
+
+    addCell(tr, peso(p.amount)).classList.add('amt');
 
     tbody.appendChild(tr);
   });
@@ -1143,6 +1153,76 @@ function renderReport() {
   }
 }
 
+// ---------- NUMBER VALIDATION (no letters allowed) ----------
+
+// Phone: digits, spaces, + - ( ) only, and 7 to 15 digits in total
+const PHONE_CHARS = /^[0-9+\-()\s]+$/;
+
+function phoneProblem(value) {
+  const v = String(value).trim();
+  const digits = v.replace(/\D/g, '');
+
+  if (!PHONE_CHARS.test(v)) {
+    return 'Phone number can only have numbers (and + - spaces).';
+  }
+
+  if (digits.length < 7 || digits.length > 15) {
+    return 'Phone number must have 7 to 15 digits.';
+  }
+
+  return '';
+}
+
+// Phone field: letters are removed as the person types or pastes
+const phoneInput = $('newCustPhone');
+
+phoneInput.setAttribute('inputmode', 'tel');
+phoneInput.setAttribute('maxlength', '20');
+phoneInput.setAttribute('pattern', '[0-9+\\-\\(\\)\\s]{7,20}');
+phoneInput.setAttribute(
+  'title',
+  'Numbers only, for example 0917-123-4567'
+);
+
+phoneInput.addEventListener('input', () => {
+  const cleaned = phoneInput.value.replace(/[^0-9+\-()\s]/g, '');
+
+  if (cleaned !== phoneInput.value) {
+    phoneInput.value = cleaned;
+    showMessage('Letters are not allowed in the phone number.', true);
+  }
+});
+
+// Number fields (price, stock, amount, quantity):
+// block e, E, + and - (the browser allows them in number boxes).
+// Whole-number fields also block the decimal point.
+const MONEY_FIELDS = ['price', 'prodPrice', 'payAmount'];
+const WHOLE_FIELDS = ['prodStock', 'prodReorder', 'payQty'];
+
+function blockBadKeys(id, allowDecimal) {
+  const field = $(id);
+
+  field.addEventListener('keydown', (event) => {
+    const bad = ['e', 'E', '+', '-'];
+
+    if (!allowDecimal) bad.push('.', ',');
+
+    if (bad.includes(event.key)) event.preventDefault();
+  });
+
+  field.addEventListener('paste', (event) => {
+    const text = (event.clipboardData || window.clipboardData)
+      .getData('text');
+
+    const pattern = allowDecimal ? /^\d*\.?\d*$/ : /^\d+$/;
+
+    if (!pattern.test(text.trim())) event.preventDefault();
+  });
+}
+
+MONEY_FIELDS.forEach((id) => blockBadKeys(id, true));
+WHOLE_FIELDS.forEach((id) => blockBadKeys(id, false));
+
 // ---------- EVENTS ----------
 
 $('addForm').addEventListener('submit', (event) => {
@@ -1174,6 +1254,14 @@ $('addCustomerForm').addEventListener('submit', (event) => {
   event.preventDefault();
 
   runForm($('addCustomerForm'), async () => {
+    const problem = phoneProblem($('newCustPhone').value);
+
+    if (problem) {
+      showMessage(problem, true);
+      $('newCustPhone').focus();
+      return;
+    }
+
     const created = await api('/customers', {
       method: 'POST',
       body: JSON.stringify({

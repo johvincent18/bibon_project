@@ -493,17 +493,12 @@ tbody tr:hover { background: #f7faff; }
 }
 
 /* ================= LOGIN: cellphone background (bg.jpg) ================= */
-/* Dapat nasa pinaka-dulo ito para ma-override ang .auth-body sa taas */
+/* Dapat nasa dulo ito para ma-override ang .auth-body sa taas */
 .auth-body {
   background:
     linear-gradient(135deg, rgba(7, 26, 58, 0.7), rgba(59, 50, 179, 0.55)),
-    url("bg..jpg") center / cover no-repeat,
+    url("bg.jpg") center / cover no-repeat,
     #071a3a;
-}
-
-/* itago ang mga blob para hindi sumabay sa picture */
-.auth-body .blob {
-  display: none;
 }
 
 /* ================= DASHBOARD: video sa sidebar ================= */
@@ -569,4 +564,312 @@ tbody tr:hover { background: #f7faff; }
     }
 }
 
-    
+
+/* =====================================================================
+   GLASS THEME (login + register)
+   Keep this block at the very bottom of the file.
+===================================================================== */
+
+/* bring back the colorful blobs so the glass has something to blur */
+.auth-body .blob { display: block; }
+
+/* the frosted card */
+.auth-card {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* left panel: lighter overlay so the video still shows through the glass */
+.auth-brand::after {
+  background: linear-gradient(160deg, rgba(10, 31, 68, 0.35), rgba(10, 31, 68, 0.65));
+}
+.auth-brand { border-right: 1px solid rgba(255, 255, 255, 0.22); }
+
+/* right panel: light text on glass */
+.auth-form { background: rgba(255, 255, 255, 0.06); color: #fff; }
+.auth-form h1,
+.auth-form label { color: #fff; }
+.auth-form .sub,
+.auth-form .switch { color: rgba(255, 255, 255, 0.78); }
+.auth-form .switch a { color: #a5c8ff; }
+
+/* glass inputs */
+.auth-form input {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+.auth-form input::placeholder { color: rgba(255, 255, 255, 0.6); }
+.auth-form input:hover { border-color: rgba(255, 255, 255, 0.65); }
+.auth-form input:focus {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.18);
+}
+
+/* keep browser autofill from turning inputs white */
+.auth-form input:-webkit-autofill {
+  -webkit-text-fill-color: #fff;
+  caret-color: #fff;
+  box-shadow: 0 0 0 1000px rgba(30, 50, 110, 0.55) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+.auth-form .toggle-pw {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+.auth-form :focus-visible { outline-color: #fff; }
+
+/* mobile: divider goes under the brand panel instead */
+@media (max-width: 820px) {
+  .auth-brand { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.22); }
+}
+
+/* fallback for browsers without backdrop-filter */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .auth-card { background: rgba(10, 31, 68, 0.88); }
+}
+
+
+/* =====================================================================
+   GLASS THEME (dashboard / index)
+   Wrapped in @media screen so Print report stays black-on-white.
+===================================================================== */
+@media screen {
+
+  /* 1. Background the glass can blur (same bg.jpg as login) */
+  body:not(.auth-body) { background: #071a3a; }
+  body:not(.auth-body)::before {
+    content: "";
+    position: fixed; inset: 0; z-index: -1;
+    background:
+      linear-gradient(135deg, rgba(7, 26, 58, 0.78), rgba(59, 50, 179, 0.6)),
+      url("bg.jpg") center / cover no-repeat;
+  }
+
+  /* 2. Light text on glass: re-point the color variables */
+  .app {
+    --ink: #fff;
+    --muted: rgba(255, 255, 255, 0.72);
+    --line: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+  .app .link { color: #a5c8ff; }
+
+  /* 3. Frosted surfaces */
+  .app .card,
+  .app .stat {
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    box-shadow: 0 10px 34px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  .app .card:hover,
+  .app .stat:hover {
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+
+  .topbar {
+    background: rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+  }
+  .site-footer { border-top-color: rgba(255, 255, 255, 0.2); }
+  .site-footer a { color: #a5c8ff; }
+
+  .sidebar { border-right: 1px solid rgba(255, 255, 255, 0.2); }
+
+  /* 4. Inputs and selects */
+  .app input,
+  .app select {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #fff;
+    color-scheme: dark;
+  }
+  .app input::placeholder { color: rgba(255, 255, 255, 0.6); }
+  .app input:hover,
+  .app select:hover { border-color: rgba(255, 255, 255, 0.65); }
+  .app input:focus,
+  .app select:focus {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #fff;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.18);
+  }
+  /* dropdown lists stay readable */
+  .app select option { color: #0d1b36; background: #fff; }
+
+  /* 5. Secondary buttons */
+  .app .btn {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+  .app .btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.28); color: #fff; }
+  .app .btn-danger { color: #ffb4ab; border-color: #ff8a80; }
+  .app .btn-danger:hover:not(:disabled) { background: #b42318; color: #fff; }
+
+  /* 6. Tables */
+  .app .table-wrap { background: none; }          /* removes the white scroll-shadow fade */
+  .app th { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.85); }
+  .app tbody tr:hover { background: rgba(255, 255, 255, 0.1); }
+
+  /* 7. Report bars */
+  .app .bar-track { background: rgba(255, 255, 255, 0.18); }
+}
+
+
+/* =====================================================================
+   SERVICE JOBS TABLE: fit the card, no sideways scrolling (desktop)
+===================================================================== */
+@media (min-width: 821px) {
+  #jobsSection .jobs.wide { min-width: 0; table-layout: auto; }
+  #jobsSection .table-wrap { overflow-x: visible; }
+
+  #jobsSection th,
+  #jobsSection td { padding: 10px 6px; font-size: 14px; }
+
+  /* narrow "#" column */
+  #jobsSection th:first-child,
+  #jobsSection td:first-child { width: 32px; }
+
+  /* Action buttons stack in 2 columns instead of one long row */
+  #jobsSection .actions {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 6px;
+    justify-content: start;
+  }
+  #jobsSection .actions .btn-sm { min-height: 34px; padding: 2px 10px; font-size: 13px; }
+  #jobsSection .actions select { min-height: 34px; width: 100%; font-size: 13px; padding: 2px 8px; }
+}
+
+
+/* =====================================================================
+   PAYMENTS PAGE: improved design
+===================================================================== */
+
+/* method badges (work in both glass and normal mode) */
+.m-cash  { background: #d9f5e4; color: #0b5d27; }
+.m-gcash { background: #dbe8ff; color: #0b3a8a; }
+.m-maya  { background: #d3f6ee; color: #05604b; }
+.m-card  { background: #e9e4fb; color: #3b2a8a; }
+
+.pay-ico { display: inline-block; width: 22px; text-align: center; }
+
+@media screen {
+
+  /* form gets a fixed comfortable width, history gets all the rest */
+  @media (min-width: 1001px) {
+    #view-payments .grid-narrow {
+      grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+    }
+    /* form stays visible while you scroll the history */
+    #view-payments .grid-narrow > .card:first-child {
+      position: sticky;
+      top: 84px;
+    }
+  }
+
+  /* history table: fit the card, no sideways scrolling */
+  #view-payments .jobs { min-width: 0; }
+  #view-payments .scroll-y {
+    max-height: 560px;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+    color-scheme: dark;
+  }
+
+  /* solid header so rows no longer show through and overlap it */
+  .app .scroll-y th {
+    background: #1b2a66;
+    color: rgba(255, 255, 255, 0.9);
+    z-index: 2;
+  }
+  #view-payments th,
+  #view-payments td { padding: 12px 10px; font-size: 14px; }
+
+  /* easier to scan */
+  #view-payments tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.04); }
+  #view-payments tbody tr:hover { background: rgba(255, 255, 255, 0.12); }
+  #view-payments .pay-date { color: var(--muted); white-space: nowrap; }
+
+  /* amount column: right-aligned, bold, green */
+  #view-payments th:last-child,
+  #view-payments td.amt { text-align: right; }
+  #view-payments td.amt {
+    font-weight: 800;
+    color: #6ee7a8;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* form side: nicer card header and button */
+  #view-payments .card-head { background: rgba(255, 255, 255, 0.05); }
+  #view-payments #payForm .btn-primary {
+    min-height: 52px;
+    margin-top: 10px;
+    font-size: 17px;
+    background: linear-gradient(135deg, #16a34a, #2563eb);
+    box-shadow: 0 10px 24px rgba(22, 163, 74, 0.35);
+  }
+  #view-payments .hint { color: #a5c8ff; }
+}
+
+
+/* =====================================================================
+   SERVICE JOBS: clean fit (Action column tidy, nothing cut off)
+   Layout of Action cell:  [ View ][ Pay ]
+                           [  status select  ]
+                           [  Delete / Has Payments  ]
+===================================================================== */
+@media (min-width: 821px) {
+
+  /* safety net: if the screen is ever too small, scroll instead of cutting */
+  #jobsSection .table-wrap { overflow-x: auto; }
+  #jobsSection .jobs.wide { min-width: 0; width: 100%; }
+
+  #jobsSection th,
+  #jobsSection td { padding: 10px 6px; font-size: 14px; }
+
+  /* the Status badge repeats what the dropdown already shows -> hide it */
+  #jobsSection th:nth-child(8),
+  #jobsSection td:nth-child(8) { display: none; }
+
+  #jobsSection th:first-child,
+  #jobsSection td:first-child { width: 32px; }
+
+  #jobsSection td:nth-child(6),
+  #jobsSection td:nth-child(7) { white-space: nowrap; }
+
+  /* Action column */
+  #jobsSection th:last-child,
+  #jobsSection td:last-child { width: 160px; }
+
+  #jobsSection .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    width: 100%;
+  }
+  #jobsSection .actions > * { width: 100%; min-width: 0; }
+  #jobsSection .actions .btn-sm { min-height: 34px; padding: 2px 8px; font-size: 13px; }
+  #jobsSection .actions select { min-height: 34px; font-size: 13px; padding: 2px 8px; }
+
+  /* no Pay button -> View takes the full row */
+  #jobsSection .actions > :first-child:nth-last-child(3) { grid-column: 1 / -1; }
+
+  /* status dropdown and delete each get a full-width row */
+  #jobsSection .actions > select { grid-column: 1 / -1; }
+  #jobsSection .actions > .btn-danger { grid-column: 1 / -1; white-space: nowrap; }
+  #jobsSection .actions > .btn-danger:disabled { opacity: 0.5; border-style: dashed; }
+}
