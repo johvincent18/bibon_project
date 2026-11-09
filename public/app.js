@@ -167,6 +167,11 @@ function showView(name) {
   document.title = TITLES[name] + ' - CellHub';
 
   window.scrollTo(0, 0);
+  
+    if (window.matchMedia('(max-width: 820px)').matches) {
+    const active = document.querySelector('.nav a.active');
+    if (active) active.scrollIntoView({ inline: 'center', block: 'nearest' });
+  }
 
   if (name === 'reports') loadReport();
 }
