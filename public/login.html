@@ -10,18 +10,25 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="auth-body">
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<!-- Same icon sprite as the dashboard -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></symbol>
+</svg>
+
 <div class="blob b1" aria-hidden="true"></div>
 <div class="blob b2" aria-hidden="true"></div>
 <div class="blob b3" aria-hidden="true"></div>
 <p id="message" role="status" aria-live="polite"></p>
 
-<main class="auth-card">
+<main id="main" tabindex="-1" class="auth-card">
   <section class="auth-brand">
     <video class="brand-media" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
       <source src="brand.mp4" type="video/mp4">
     </video>
 
-    <p class="logo"><span aria-hidden="true">📱</span> Cell<span>Hub</span></p>
+    <p class="logo"><svg class="icon" aria-hidden="true"><use href="#i-phone"/></svg> Cell<span>Hub</span></p>
     <p class="tagline">Run your cellphone shop with confidence.</p>
     <ul class="perks">
       <li>Track every repair from drop-off to release</li>
