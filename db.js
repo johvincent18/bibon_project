@@ -1,29 +1,10 @@
-
 const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 const path = require('path');
-const fs = require('fs');
 
-// ---------- DATABASE LOCATION ----------
-
-const dbFile =
-  process.env.DB_FILE ||
-  (process.env.NODE_ENV === 'production'
-    ? '/var/data/cellhub.db'
-    : path.join(__dirname, 'cellhub.db'));
-
-// Make sure the database directory exists
-fs.mkdirSync(path.dirname(dbFile), { recursive: true });
-
-// Connect to SQLite
+const dbFile = process.env.DB_FILE || path.join(__dirname, 'cellhub.db');
 const db = new Database(dbFile);
-
-// Enable foreign keys
 db.pragma('foreign_keys = ON');
-
-console.log('Connected to SQLite database:', dbFile);
-
-// ---------- CREATE TABLES ----------
 
 db.exec(`
 CREATE TABLE IF NOT EXISTS users (
@@ -79,14 +60,11 @@ CREATE TABLE IF NOT EXISTS payments (
 );
 `);
 
-// ---------- 1. CUSTOMERS + JOBS ----------
-
+// ---------- 1. CUSTOMERS + JOBS (dapat una) ----------
 if (db.prepare('SELECT COUNT(*) AS total FROM customers').get().total === 0) {
-
   const addCustomer = db.prepare(
     'INSERT INTO customers (name, phone, email, address) VALUES (?, ?, ?, ?)'
   );
-
   addCustomer.run('Maria Santos', '0917-111-2222', 'maria.santos@gmail.com', 'Ibabang Dupay, Lucena City');
   addCustomer.run('Juan Dela Cruz', '0918-333-4444', 'juan.delacruz@gmail.com', 'Poblacion, Tayabas');
   addCustomer.run('Ana Reyes', '0919-555-6666', 'ana.reyes@gmail.com', 'Sampaloc, Sariaya');
@@ -97,11 +75,8 @@ if (db.prepare('SELECT COUNT(*) AS total FROM customers').get().total === 0) {
   addCustomer.run('Mark Villanueva', '0924-345-6789', 'mark.villanueva@gmail.com', 'Bignay, Sariaya');
 
   const addJob = db.prepare(
-    `INSERT INTO service_jobs
-    (customer_id, device_model, issue, job_type, price, status, date_received)
-    VALUES (?, ?, ?, ?, ?, ?, ?)`
+    'INSERT INTO service_jobs (customer_id, device_model, issue, job_type, price, status, date_received) VALUES (?, ?, ?, ?, ?, ?, ?)'
   );
-
   addJob.run(1, 'Samsung Galaxy A14', 'Cracked screen', 'Screen Replacement', 2500, 'Pending', '2026-11-02');
   addJob.run(1, 'Samsung Galaxy A14', 'Screen protector', 'Accessory Purchase', 150, 'Completed', '2026-11-02');
   addJob.run(2, 'iPhone 11', 'Battery drains fast', 'Battery Replacement', 1800, 'In Progress', '2026-11-03');
@@ -114,15 +89,10 @@ if (db.prepare('SELECT COUNT(*) AS total FROM customers').get().total === 0) {
 }
 
 // ---------- 2. PRODUCTS ----------
-
 if (db.prepare('SELECT COUNT(*) AS total FROM products').get().total === 0) {
-
   const addProduct = db.prepare(
-    `INSERT INTO products
-    (name, category, price, stock, reorder_level)
-    VALUES (?, ?, ?, ?, ?)`
+    'INSERT INTO products (name, category, price, stock, reorder_level) VALUES (?, ?, ?, ?, ?)'
   );
-
   addProduct.run('Tempered Glass 9H', 'Accessories', 120, 40, 10);
   addProduct.run('Universal Phone Case', 'Accessories', 200, 25, 8);
   addProduct.run('Fast Charger 20W', 'Chargers', 450, 12, 5);
@@ -133,60 +103,25 @@ if (db.prepare('SELECT COUNT(*) AS total FROM products').get().total === 0) {
   addProduct.run('Samsung A14 LCD', 'Parts', 1800, 2, 3);
 }
 
-// ---------- 3. PAYMENTS ----------
-
+// ---------- 3. PAYMENTS (dapat huli, kailangan nito ang jobs at products) ----------
 if (db.prepare('SELECT COUNT(*) AS total FROM payments').get().total === 0) {
-
-  const findJob = db.prepare(
-    'SELECT customer_id, price FROM service_jobs WHERE id = ?'
-  );
-
-  const findProduct = db.prepare(
-    'SELECT price FROM products WHERE id = ?'
-  );
-
+  const findJob = db.prepare('SELECT customer_id, price FROM service_jobs WHERE id = ?');
+  const findProduct = db.prepare('SELECT price FROM products WHERE id = ?');
   const addPayment = db.prepare(
-    `INSERT INTO payments
-    (customer_id, job_id, product_id, quantity, amount, method, paid_at, note)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    'INSERT INTO payments (customer_id, job_id, product_id, quantity, amount, method, paid_at, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
   );
-
-  const reduceStock = db.prepare(
-    'UPDATE products SET stock = stock - ? WHERE id = ?'
-  );
+  const reduceStock = db.prepare('UPDATE products SET stock = stock - ? WHERE id = ?');
 
   const payJob = (jobId, amount, method, date) => {
     const job = findJob.get(jobId);
-
     if (job && amount <= job.price) {
-      addPayment.run(
-        job.customer_id,
-        jobId,
-        null,
-        1,
-        amount,
-        method,
-        date,
-        null
-      );
+      addPayment.run(job.customer_id, jobId, null, 1, amount, method, date, null);
     }
   };
-
   const sell = (productId, qty, method, date) => {
     const product = findProduct.get(productId);
-
     if (product) {
-      addPayment.run(
-        null,
-        null,
-        productId,
-        qty,
-        product.price * qty,
-        method,
-        date,
-        'Walk-in sale'
-      );
-
+      addPayment.run(null, null, productId, qty, product.price * qty, method, date, 'Walk-in sale');
       reduceStock.run(qty, productId);
     }
   };
@@ -196,38 +131,23 @@ if (db.prepare('SELECT COUNT(*) AS total FROM payments').get().total === 0) {
   payJob(3, 900, 'Cash', '2026-11-03');
   payJob(4, 500, 'GCash', '2026-11-01');
   payJob(6, 200, 'Cash', '2026-11-04');
-
   sell(1, 3, 'Cash', '2026-11-03');
   sell(3, 1, 'GCash', '2026-11-04');
   sell(4, 2, 'Cash', '2026-11-05');
 }
 
-// ---------- 4. DEMO ADMIN ----------
-
+// ---------- 4. DEMO ADMIN (survives redeploys on Render) ----------
 const demoEmail = process.env.DEMO_EMAIL;
 const demoPassword = process.env.DEMO_PASSWORD;
-
 if (demoEmail && demoPassword) {
-
   const email = demoEmail.trim().toLowerCase();
-
-  const found = db.prepare(
-    'SELECT id FROM users WHERE email = ?'
-  ).get(email);
-
+  const found = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
   if (!found) {
-
     const hash = bcrypt.hashSync(demoPassword, 10);
-
     db.prepare(
-      `INSERT INTO users (name, email, passwordHash, role)
-       VALUES (?, ?, ?, 'admin')`
+      "INSERT INTO users (name, email, passwordHash, role) VALUES (?, ?, ?, 'admin')"
     ).run('Demo Admin', email, hash);
-
-    console.log('Demo admin account created.');
   }
 }
-
-// ---------- EXPORT DATABASE ----------
 
 module.exports = db;
